@@ -1,1 +1,2 @@
-# lolteamrankchat
+# our resident manager
+#
