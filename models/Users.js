@@ -8,7 +8,7 @@ var userSchema = mongoose.Schema({
   password:{type:String, required:[true,'Password is required!'], select:false},
   name:{type:String, required:[true,'Name is required!']},
   email:{type:String},
-  ign:{type:String, require:[true, 'You need to enter League In Game ID'], unique:true}
+  addr:{type:String, require:[true, 'You need to enter Detailed Address'],}
 },{
   toObject:{virtuals:true}
 });
