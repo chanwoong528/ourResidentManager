@@ -5,7 +5,7 @@ var util = require('../util'); // 1
 
 
 
-// Index  should be erased!!
+// Index
 router.get('/', function(req, res){
   User.find({})
     .sort({username:1})
@@ -16,7 +16,7 @@ router.get('/', function(req, res){
 });
 
 // New
-router.get('/:username', util.isLoggedin, checkPermission, function(req, res){
+router.get('/new', function(req, res){
   var user = req.flash('user')[0] || {};
   var errors = req.flash('errors')[0] || {};
   res.render('users/new', { user:user, errors:errors });
@@ -35,7 +35,7 @@ router.post('/', function(req, res){
 });
 
 // show
-router.get('/:username', function(req, res){
+router.get('/:username', util.isLoggedin, checkPermission, function(req, res){
   User.findOne({username:req.params.username}, function(err, user){
     if(err) return res.json(err);
     res.render('users/show', {user:user});
@@ -86,7 +86,7 @@ router.put("/:username", util.isLoggedin, checkPermission, function(req, res, ne
 
 
 
-// destroy should be erased!
+// destroy
 router.delete('/:username', function(req, res){
   User.deleteOne({username:req.params.username}, function(err){
     if(err) return res.json(err);
@@ -96,15 +96,6 @@ router.delete('/:username', function(req, res){
 
 module.exports = router;
 
-// private functions // 2
-function checkPermission(req, res, next){
- User.findOne({username:req.params.username}, function(err, user){
-  if(err) return res.json(err);
-  if(user.id != req.user.id) return util.noPermission(req, res);
-
-  next();
- });
-}
 // functions
 function parseError(errors){
   var parsed = {};
@@ -121,4 +112,13 @@ function parseError(errors){
     parsed.unhandled = JSON.stringify(errors);
   }
   return parsed;
+}
+// private functions // 2
+function checkPermission(req, res, next){
+ User.findOne({username:req.params.username}, function(err, user){
+  if(err) return res.json(err);
+  if(user.id != req.user.id) return util.noPermission(req, res);
+
+  next();
+ });
 }
