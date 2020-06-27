@@ -54,6 +54,7 @@ app.use('/', require('./routes/home'));
 app.use('/posts', require('./routes/posts'));
 app.use('/users', require('./routes/users'));
 app.use('/notices', require('./routes/notices'));
+app.use('/trades', require('./routes/trades'));
 
 
 // Port setting
