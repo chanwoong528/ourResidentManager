@@ -34,6 +34,3 @@ util.noPermission = function(req, res){
 };
 
 module.exports = util;
-
-
-module.exports = util;

@@ -104,8 +104,6 @@ userSchema.path('password').validate(function(v) {
      return next();
    }
  });
-
-
  // model methods // 4
 userSchema.methods.authenticate = function (password) {
   var user = this;

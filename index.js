@@ -53,6 +53,8 @@ app.use(function(req,res,next){
 app.use('/', require('./routes/home'));
 app.use('/posts', require('./routes/posts'));
 app.use('/users', require('./routes/users'));
+app.use('/notices', require('./routes/notices'));
+
 
 // Port setting
 var port = 3000;
