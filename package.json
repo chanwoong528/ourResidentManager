@@ -25,10 +25,10 @@
   "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/chanwoong528/lolteamrankchat.git"
+    "url": "git+https://github.com/chanwoong528/ourResidentManager.git"
   },
   "bugs": {
-    "url": "https://github.com/chanwoong528/lolteamrankchat/issues"
+    "url": "https://github.com/chanwoong528/ourResidentManager"
   },
-  "homepage": "https://github.com/chanwoong528/lolteamrankchat#readme"
+  "homepage": "https://github.com/chanwoong528/ourResidentManager#readme"
 }
