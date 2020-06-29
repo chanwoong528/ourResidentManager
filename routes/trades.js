@@ -4,14 +4,28 @@ var Trade = require('../models/Trade');
 var util = require('../util'); // 1
 
 // Index
-router.get('/', function(req, res){
-  Trade.find({})
-    .populate('author') // 1
+router.get('/', async function(req, res){ // 1
+  var page = Math.max(1, parseInt(req.query.page));   // 2
+  var limit = Math.max(1, parseInt(req.query.limit)); // 2
+  page = !isNaN(page)?page:1;                         // 3
+  limit = !isNaN(limit)?limit:10;                     // 3
+
+  var skip = (page-1)*limit; // 4
+  var count = await Trade.countDocuments({}); // 5
+  var maxPage = Math.ceil(count/limit); // 6
+  var trades = await Trade.find({}) // 7
+    .populate('author')
     .sort('-createdAt')
-    .exec(function(err, trades){
-      if(err) return res.json(err);
-      res.render('trades/index', {trades:trades});
-    });
+    .skip(skip)   // 8
+    .limit(limit) // 8
+    .exec();
+
+  res.render('trades/index', {
+    trades:trades,
+    currentPage:page, // 9
+    maxPage:maxPage,  // 9
+    limit:limit       // 9
+  });
 });
 
 // New

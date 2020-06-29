@@ -4,15 +4,30 @@ var Notice = require('../models/Notice');
 var util = require('../util'); // 1
 
 // Index
-router.get('/', function(req, res){
-  Notice.find({})
-    .populate('author') // 1
+router.get('/', async function(req, res){ // 1
+  var page = Math.max(1, parseInt(req.query.page));   // 2
+  var limit = Math.max(1, parseInt(req.query.limit)); // 2
+  page = !isNaN(page)?page:1;                         // 3
+  limit = !isNaN(limit)?limit:10;                     // 3
+
+  var skip = (page-1)*limit; // 4
+  var count = await Notice.countDocuments({}); // 5
+  var maxPage = Math.ceil(count/limit); // 6
+  var notices = await Notice.find({}) // 7
+    .populate('author')
     .sort('-createdAt')
-    .exec(function(err, notices){
-      if(err) return res.json(err);
-      res.render('notices/index', {notices:notices});
-    });
+    .skip(skip)   // 8
+    .limit(limit) // 8
+    .exec();
+
+  res.render('notices/index', {
+    notices:notices,
+    currentPage:page, // 9
+    maxPage:maxPage,  // 9
+    limit:limit       // 9
+  });
 });
+
 
 // New
 router.get('/new', util.isLoggedin, function(req, res){
