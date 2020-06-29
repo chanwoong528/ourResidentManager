@@ -1,6 +1,7 @@
 var express  = require('express');
 var router = express.Router();
 var Notice = require('../models/Notice');
+var Comment = require('../models/Comment'); // 1
 var util = require('../util'); // 1
 
 // Index
@@ -50,12 +51,20 @@ router.post('/', util.isLoggedin, function(req, res){
 });
 
 // show
-router.get('/:id', function(req, res){
-  Notice.findOne({_id:req.params.id}) // 3
-    .populate('author')             // 3
-    .exec(function(err, notice){      // 3
-      if(err) return res.json(err);
-      res.render('notices/show', {notice:notice});
+router.get('/:id', function(req, res){ // 2
+  var commentForm = req.flash('commentForm')[0] || {_id: null, form: {}};
+  var commentError = req.flash('commentError')[0] || { _id:null, parentComment: null, errors:{}};
+
+  Promise.all([
+      Notice.findOne({_id:req.params.id}).populate({ path: 'author', select: 'username' }),
+      Comment.find({notice:req.params.id}).sort('createdAt').populate({ path: 'author', select: 'username' })
+    ])
+    .then(([notice, comments]) => {
+      res.render('notices/show', { notice:notice, comments:comments, commentForm:commentForm, commentError:commentError});
+    })
+    .catch((err) => {
+      console.log('err: ', err);
+      return res.json(err);
     });
 });
 
