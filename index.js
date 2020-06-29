@@ -7,6 +7,8 @@ var flash = require('connect-flash'); // npm
 var session = require('express-session'); // npm
 var passport = require('./config/passport');//npm
 
+var util = require('./util');
+
 var app = express();
 var dbUrl = 'mongodb+srv://moon528:ms5028@cluster0-vltfk.mongodb.net/TownBoard?retryWrites=true&w=majority';
 
@@ -55,7 +57,7 @@ app.use('/posts', require('./routes/posts'));
 app.use('/users', require('./routes/users'));
 app.use('/notices', require('./routes/notices'));
 app.use('/trades', require('./routes/trades'));
-
+app.use('/comments', util.getPostQueryString, require('./routes/comments')); // 1
 
 // Port setting
 var port = 3000;

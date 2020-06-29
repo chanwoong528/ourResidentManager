@@ -26,6 +26,10 @@ body {
   font-size: 0.8em;
 }
 
+.comment-text {
+  white-space: pre-line;
+}
+
 .user-form {
   width: 400px;
 }
