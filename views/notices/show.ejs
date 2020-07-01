@@ -62,10 +62,12 @@
                      <% comments.forEach(function(comment) { %> <!-- 1-2 -->
                        <div class="border-top pt-1 pb-1">
                          <div class="row">
-                           <div class="col-3 col-md-2 col-lg-1 pl-4"><%= comment.author.username %></div> <!-- 1-3 -->
-                           <div class="col-9 col-md-10 col-lg-11">
+                           <div class="col-3 col-md-2 col-lg-1 pl-4" >
+                            <%= comment.author.username %></div> <!-- 1-3 -->
+<div class="col-9 col-md-10 col-lg-11">
                              <div class="comment-show">
-                               <div class="comment-text mb-3"><%= comment.text %></div> <!-- 1-4 -->
+                               <div class="comment-text mb-3">
+                                 <%= comment.text %></div> <!-- 1-4 -->
                                <small class="d-block">
                                  (Created: <span data-date-time="<%= comment.createdAt %>"></span>) <!-- 1-5 -->
                                </small>
