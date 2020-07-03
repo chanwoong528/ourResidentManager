@@ -13,18 +13,15 @@
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb p-1 pl-2 pr-2">
         <li class="breadcrumb-item"><a href="/">Home</a></li>
-        <li class="breadcrumb-item"><a href="/notices">Announcements</a></li>
-        <li class="breadcrumb-item active" aria-current="page"><%= post.title %></li>
+        <li class="breadcrumb-item"><a href="/frees">Board</a></li>
+        <li class="breadcrumb-item active" aria-current="page">New Post</li>
       </ol>
     </nav>
 
-    <%- include('../partials/show/card') %>
-
-    <%- include('../partials/show/buttons') %>
-
-    <%- include('../partials/show/comments') %>
+    <%- include('../partials/new/form') %>
 
   </div>
+
 </body>
 
 </html>

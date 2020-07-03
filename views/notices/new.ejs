@@ -16,36 +16,7 @@
         </ol>
       </nav>
 
-      <form action="/notices" method="post">
-
-         <div class="form-group">
-           <label for="title">Title</label>
-           <input type="text" id="title" name="title" value="<%= notice.title %>" class="form-control <%= (errors.title)?'is-invalid':'' %>">
-           <% if(errors.title){ %>
-             <span class="invalid-feedback"><%= errors.title.message %></span>
-           <% } %>
-         </div>
-
-         <div class="form-group">
-           <label for="body">Body</label>
-           <textarea id="body" name="body" rows="5" class="form-control <%= (errors.body)?'is-invalid':'' %>"><%= notice.body %></textarea>
-           <% if(errors.body){ %>
-             <span class="invalid-feedback"><%= errors.body.message %></span>
-           <% } %>
-         </div>
-
-         <% if(errors.unhandled){ %>
-           <div class="invalid-feedback d-block">
-             <%= errors.unhandled %>
-           </div>
-         <% } %>
-
-         <div>
-           <a class="btn btn-primary" href="/notices">Back</a>
-           <button type="submit" class="btn btn-primary">Submit</button>
-         </div>
-
-       </form>
+      <%- include('../partials/new/form') %>
 
     </div>
   </body>
