@@ -1,34 +1,37 @@
 var express = require('express');
 var router = express.Router();
 var Comment = require('../models/Comment');
-var Notice = require('../models/Notice');
+var Post = require('../models/Post');
 var util = require('../util');
 
 // create
-router.post('/', util.isLoggedin, checkNoticeId, function(req, res) { // 1
-  var notice = res.locals.notice; // 1-1
+router.post('/', util.isLoggedin, checkPostId, function(req, res) {
+  var post = res.locals.post;
+  console.log('===res.locals.post = ' + res.locals.post);
 
-  req.body.author = req.user._id; // 2
-  req.body.notice = notice._id; // 2
+  req.body.author = req.user._id;
+  req.body.post = post._id;
 
   Comment.create(req.body, function(err, comment) {
     if (err) {
       req.flash('commentForm', {
         _id: null,
         form: req.body
-      }); // 3
+      });
       req.flash('commentError', {
         _id: null,
         errors: util.parseError(err)
-      }); // 3
+      });
     }
-    return res.redirect('/notices/' + notice._id + res.locals.getPostQueryString()); //4
+    console.log('@@@@@@@@post.board = ' + post.board);
+    return res.redirect('/' + post.board + 's/' + post._id + res.locals.getPostQueryString());
+    // post.board contains folder name, which will help redirect to appropriate page
   });
 });
 
-// update // 2
-router.put('/:id', util.isLoggedin, checkPermission, checkNoticeId, function(req, res) {
-  var notice = res.locals.notice;
+// update
+router.put('/:id', util.isLoggedin, checkPermission, checkPostId, function(req, res) {
+  var post = res.locals.post;
 
   req.body.updatedAt = Date.now();
   Comment.findOneAndUpdate({
@@ -46,13 +49,13 @@ router.put('/:id', util.isLoggedin, checkPermission, checkNoticeId, function(req
         errors: util.parseError(err)
       });
     }
-    return res.redirect('/notices/' + notice._id + res.locals.getPostQueryString());
+    return res.redirect('/' + post.board + 's/' + post._id + res.locals.getPostQueryString());
   });
 });
 
-// destroy // 3
-router.delete('/:id', util.isLoggedin, checkPermission, checkNoticeId, function(req, res) {
-  var notice = res.locals.notice;
+// destroy
+router.delete('/:id', util.isLoggedin, checkPermission, checkPostId, function(req, res) {
+  var post = res.locals.post;
 
   Comment.findOne({
     _id: req.params.id
@@ -64,7 +67,7 @@ router.delete('/:id', util.isLoggedin, checkPermission, checkNoticeId, function(
     comment.save(function(err, comment) {
       if (err) return res.json(err);
 
-      return res.redirect('/notices/' + notice._id + res.locals.getPostQueryString());
+      return res.redirect('/' + post.board + 's/' + post._id + res.locals.getPostQueryString());
     });
   });
 });
@@ -72,7 +75,7 @@ router.delete('/:id', util.isLoggedin, checkPermission, checkNoticeId, function(
 module.exports = router;
 
 // private functions
-function checkPermission(req, res, next) { // 1
+function checkPermission(req, res, next) {
   Comment.findOne({
     _id: req.params.id
   }, function(err, comment) {
@@ -83,13 +86,15 @@ function checkPermission(req, res, next) { // 1
   });
 }
 
-function checkNoticeId(req, res, next) { // 1
-  Notice.findOne({
-    _id: req.query.noticeId
-  }, function(err, notice) {
+function checkPostId(req, res, next) {
+  console.log('=====postId = ' + req.query.postId)
+  Post.findOne({
+    _id: req.query.postId
+  }, function(err, post) {
     if (err) return res.json(err);
 
-    res.locals.notice = notice; // 1-1
+    res.locals.post = post;
+    console.log('checkPostId of ' + post);
     next();
   });
 }

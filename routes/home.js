@@ -5,6 +5,7 @@ var passport = require('../config/passport');
 
 // Home
 router.get('/', function(req, res){
+  //console.log(req.url);
   res.render('home/welcome');
 });
 router.get('/about', function(req, res){

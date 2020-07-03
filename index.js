@@ -53,10 +53,13 @@ app.use(function(req,res,next){
 
 // Routes
 app.use('/', util.getPostQueryString, require('./routes/home'));
-app.use('/posts', require('./routes/posts'));
 app.use('/users', require('./routes/users'));
-app.use('/notices', require('./routes/notices'));
-app.use('/trades', require('./routes/trades'));
+app.use('/notices', require('./routes/posts'));
+app.use('/frees', require('./routes/posts'));
+app.use('/trades', require('./routes/posts'));
+// app.use('/notices', require('./routes/notices'));
+// app.use('/frees', require('./routes/frees'));
+// app.use('/trades', require('./routes/trades'));
 app.use('/comments', require('./routes/comments')); // 1
 
 // Port setting
