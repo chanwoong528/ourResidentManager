@@ -17,7 +17,7 @@
     <% posts.forEach(function(post) { %>
     <tr>
       <td>
-        <a href="/<%= boardName + 's/' %><%= post._id %>">
+        <a href="/<%= boardName + '/' + post._id %>">
           <div class="ellipsis"><%= post.title %></div>
         </a>
       </td>

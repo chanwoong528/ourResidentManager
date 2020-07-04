@@ -2,10 +2,10 @@ var mongoose = require('mongoose');
 var Post = require('./Post');
 
 var Trade = Post.discriminator('trade', new mongoose.Schema({
-  // add 'free' specific categories
+  // add 'free' specific properties
   _trade: {
     type: String,
-    default: 'trade specific'
+    default: 'example property'
   }
 }));
 
