@@ -2,10 +2,10 @@ var mongoose = require('mongoose');
 var Post = require('./Post');
 
 var Free = Post.discriminator('free', new mongoose.Schema({
-  // add 'free' specific categories
+  // add 'free' specific properties
   _free: {
     type: String,
-    default: 'free specific'
+    default: 'example property'
   }
 }));
 
