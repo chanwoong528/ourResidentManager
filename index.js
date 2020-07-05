@@ -12,9 +12,6 @@ var util = require('./util');
 var app = express();
 var dbUrl = 'mongodb+srv://moon528:ms5028@cluster0-vltfk.mongodb.net/TownBoard?retryWrites=true&w=majority';
 
-
-
-
 // DB setting
 
 mongoose.set('useNewUrlParser', true);
@@ -32,6 +29,7 @@ db.on('error', function(err){
 
 // Other settings
 app.set('view engine', 'ejs');
+
 app.use(express.static(__dirname+'/public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
@@ -54,13 +52,8 @@ app.use(function(req,res,next){
 // Routes
 app.use('/', util.getPostQueryString, require('./routes/home'));
 app.use('/users', require('./routes/users'));
-app.use('/notices', require('./routes/posts'));
-app.use('/frees', require('./routes/posts'));
-app.use('/trades', require('./routes/posts'));
-// app.use('/notices', require('./routes/notices'));
-// app.use('/frees', require('./routes/frees'));
-// app.use('/trades', require('./routes/trades'));
-app.use('/comments', require('./routes/comments')); // 1
+app.use('/boards' , require('./routes/posts'));
+app.use('/comments', require('./routes/comments'));
 
 // Port setting
 var port = process.env.PORT || 3000;
