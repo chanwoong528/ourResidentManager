@@ -7,8 +7,6 @@ var util = require('../util');
 // create
 router.post('/', util.isLoggedin, checkPostId, function(req, res) {
   var post = res.locals.post;
-  console.log('===res.locals.post = ' + res.locals.post);
-
   req.body.author = req.user._id;
   req.body.post = post._id;
 
@@ -23,9 +21,8 @@ router.post('/', util.isLoggedin, checkPostId, function(req, res) {
         errors: util.parseError(err)
       });
     }
-    console.log('@@@@@@@@post.board = ' + post.board);
-    return res.redirect('/' + post.board + 's/' + post._id + res.locals.getPostQueryString());
-    // post.board contains folder name, which will help redirect to appropriate page
+    return res.redirect('/boards/' + post.board + 's/' + post._id + res.locals.getPostQueryString());
+    // post.board contains folder name (e.g., notices), which will help redirect to appropriate page
   });
 });
 
@@ -49,7 +46,7 @@ router.put('/:id', util.isLoggedin, checkPermission, checkPostId, function(req, 
         errors: util.parseError(err)
       });
     }
-    return res.redirect('/' + post.board + 's/' + post._id + res.locals.getPostQueryString());
+    return res.redirect('/boards/' + post.board + 's/' + post._id + res.locals.getPostQueryString());
   });
 });
 
@@ -67,7 +64,7 @@ router.delete('/:id', util.isLoggedin, checkPermission, checkPostId, function(re
     comment.save(function(err, comment) {
       if (err) return res.json(err);
 
-      return res.redirect('/' + post.board + 's/' + post._id + res.locals.getPostQueryString());
+      return res.redirect('/boards/' + post.board + 's/' + post._id + res.locals.getPostQueryString());
     });
   });
 });
@@ -87,14 +84,12 @@ function checkPermission(req, res, next) {
 }
 
 function checkPostId(req, res, next) {
-  console.log('=====postId = ' + req.query.postId)
   Post.findOne({
     _id: req.query.postId
   }, function(err, post) {
     if (err) return res.json(err);
 
     res.locals.post = post;
-    console.log('checkPostId of ' + post);
     next();
   });
 }
