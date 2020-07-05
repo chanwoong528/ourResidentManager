@@ -27,6 +27,10 @@ var Post = mongoose.model('post', new Schema({
   updatedAt: {
     type: Date
   },
+  countComment:
+  {
+    type: Number, default: '0'
+  }
 }, baseOptions, ), );
 
 // model & export

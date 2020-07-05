@@ -21,6 +21,11 @@ router.post('/', util.isLoggedin, checkPostId, function(req, res) {
         errors: util.parseError(err)
       });
     }
+    else{
+    Post.findOneAndUpdate({_id:req.params.id},{$set:{countComment:'10'}},{new: true});
+
+    console.log('count++done');
+    }
     return res.redirect('/boards/' + post.board + 's/' + post._id + res.locals.getPostQueryString());
     // post.board contains folder name (e.g., notices), which will help redirect to appropriate page
   });
@@ -57,10 +62,12 @@ router.delete('/:id', util.isLoggedin, checkPermission, checkPostId, function(re
   Comment.findOne({
     _id: req.params.id
   }, function(err, comment) {
-    if (err) return res.json(err);
+    if (err)
+      return res.json(err);
 
-    // save updated comment
+
     comment.isDeleted = true;
+    post.countComment--;
     comment.save(function(err, comment) {
       if (err) return res.json(err);
 

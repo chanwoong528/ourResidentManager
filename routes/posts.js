@@ -22,21 +22,38 @@ router.get('/:boardName', async function(req, res){
     limit = !isNaN(limit)?limit:10;
 
     var skip = (page-1)*limit;
+    var countComment = 0;
     var count = await Post.countDocuments({board: postType});
     var maxPage = Math.ceil(count/limit);
-    var posts = await Post.find({board: postType})
-      .populate('author')
-      .sort('-createdAt')
-      .skip(skip)
-      .limit(limit)
-      .exec();
+    var posts = await Post.aggregate([
+      { $match: {board:postType} },
+      { $lookup: {
+          from: 'users',
+          localField: 'author',
+          foreignField: '_id',
+          as: 'author'
+      } },
+      { $unwind: '$author' },
+      { $sort : { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]).exec();
+
+    var countComments = [];
+    posts.forEach(function(post){
+          var countComment = 0;
+          Comment.countDocuments({post:post._id}).then((value)=>{countComment = value})});
+          countComments.push(countComment);
+    console.log('countComments = ' + countComments);
+
 
     res.render('boards/' + boardName + '/index', {
       posts:posts,
       boardName:boardName,
       currentPage:page,
       maxPage:maxPage,
-      limit:limit
+      limit:limit,
+      countComments:countComments
     });
   }
 });
@@ -153,6 +170,8 @@ function checkPermission(req, res, next){
 }
 
 function createHelper(err, req, res){
+var boardName = req.params.boardName;
+var postType = boardName.slice(0,-1);
   if(err){
     req.flash(postType , req.body);
     req.flash('errors', util.parseError(err));
