@@ -10,6 +10,9 @@ var passport = require('./config/passport');//npm
 var util = require('./util');
 
 var app = express();
+var chatServer = require('http').createServer(app);
+var io = require('socket.io')(chatServer);
+
 var dbUrl = 'mongodb+srv://moon528:ms5028@cluster0-vltfk.mongodb.net/TownBoard?retryWrites=true&w=majority';
 
 // DB setting
@@ -52,6 +55,7 @@ app.use(function(req,res,next){
 // Routes
 app.use('/', util.getPostQueryString, require('./routes/home'));
 app.use('/users', require('./routes/users'));
+app.use('/dm', require('./routes/chats'));
 app.use('/boards' , require('./routes/posts'));
 app.use('/comments', require('./routes/comments'));
 
@@ -59,4 +63,9 @@ app.use('/comments', require('./routes/comments'));
 var port = process.env.PORT || 3000;
 app.listen(port, function(){
   console.log('server on! http://localhost:'+port);
+});
+
+var chatPort = 3001;
+chatServer.listen(chatPort, function() {
+  console.log('Socket IO server listening on port ' + chatPort);
 });
