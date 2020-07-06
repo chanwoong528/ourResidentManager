@@ -7,6 +7,9 @@ var Trade = require('../models/Trade');
 var Comment = require('../models/Comment');
 var util = require('../util');
 
+
+
+
 // Index
 router.get('/:boardName', async function(req, res){
   var boardName = req.params.boardName;
@@ -82,6 +85,7 @@ router.post('/:boardName', util.isLoggedin, function(req, res){
 router.get('/:boardName/:id', function(req, res){
   var boardName = req.params.boardName;
   var postType = boardName.slice(0,-1);
+  var likes = Post.likes;
   var commentForm = req.flash('commentForm')[0] || {_id: null, form: {}};
   var commentError = req.flash('commentError')[0] || { _id:null, parentComment: null, errors:{}};
 
@@ -90,7 +94,7 @@ router.get('/:boardName/:id', function(req, res){
       Comment.find({post:req.params.id}).sort('createdAt').populate({ path: 'author', select: 'username' })
     ])
     .then(([post, comments]) => {
-      res.render('boards/' + boardName + '/show', { post:post, boardName:boardName, comments:comments, commentForm:commentForm, commentError:commentError});
+      res.render('boards/' + boardName + '/show', { post:post, boardName:boardName, comments:comments, commentForm:commentForm, commentError:commentError, likes:likes});
     })
     .catch((err) => {
       console.log('err: ', err);
@@ -121,6 +125,7 @@ router.put('/:boardName/:id', util.isLoggedin, checkPermission, function(req, re
   var boardName = req.params.boardName;
   var postType = boardName.slice(0,-1);
   req.body.updatedAt = Date.now();
+
   Post.findOneAndUpdate({_id:req.params.id}, req.body, {runValidators:true}, function(err, post){
     if(err){
       req.flash(boardName, req.body);
@@ -135,11 +140,55 @@ router.put('/:boardName/:id', util.isLoggedin, checkPermission, function(req, re
 router.delete('/:boardName/:id', util.isLoggedin, checkPermission, function(req, res){
   var boardName = req.params.boardName;
   var postType = boardName.slice(0,-1);
+
   Post.deleteOne({_id:req.params.id}, function(err){
     if(err) return res.json(err);
     res.redirect('/boards/' + boardName);
   });
 });
+
+
+
+//likes
+router.post('/:boardName/:id/likes', util.isLoggedin, checkPermission,
+function(req, res){
+  var boardName = req.params.boardName;
+  var postType = boardName.slice(0,-1);
+  var allowLike = true;
+  Post.findOne({_id:req.params.id}, function(err, post){
+  if(err)
+  {
+    console.log(err);
+    return res.status(500).send('Something went wrong!');
+  }
+  else{
+    var userName = post.likedPerson.find(element => req.user._id);
+    if(userName == undefined)
+    {
+      post.likedPerson.push(req.user._id);
+      post.likes += 1;
+      post.save(function(err)
+      {
+          if(err) return res.status(500).send('Something went wrong!');
+
+          //return res.send({likes: post.likes});
+          return res.redirect('/boards/' + boardName + '/' + req.params.id);
+      });
+    }
+    else
+    {   allowLike = false;
+
+
+       return res.send('좋아요 눌렀음 뒤로가기 눌러주세요');
+       //return res.redirect('/boards/' + boardName + '/' + req.params.id);
+
+    }
+
+}});
+  });
+
+
+
 
 module.exports = router;
 
@@ -153,6 +202,8 @@ function checkPermission(req, res, next){
 }
 
 function createHelper(err, req, res){
+var boardName = req.params.boardName;
+  var postType = boardName.slice(0,-1);
   if(err){
     req.flash(postType , req.body);
     req.flash('errors', util.parseError(err));
