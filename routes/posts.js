@@ -1,4 +1,4 @@
-var express  = require('express');
+var express = require('express');
 var router = express.Router();
 var Post = require('../models/Post');
 var Notice = require('../models/Notice');
@@ -7,24 +7,30 @@ var Trade = require('../models/Trade');
 var Comment = require('../models/Comment');
 var util = require('../util');
 
+
+
+
 // Index
-router.get('/:boardName', async function(req, res){
+router.get('/:boardName', async function(req, res) {
   var boardName = req.params.boardName;
-  if (boardName !== 'notices' && boardName !== 'frees' && boardName !== 'trades'){
+  if (boardName !== 'notices' && boardName !== 'frees' && boardName !== 'trades') {
     res.render('home/error');
-  }
-  else {
-    var postType = boardName.slice(0,-1);
+  } else {
+    var postType = boardName.slice(0, -1);
     // console.log('boardName after getBoardName:' + boardName);
     var page = Math.max(1, parseInt(req.query.page));
     var limit = Math.max(1, parseInt(req.query.limit));
-    page = !isNaN(page)?page:1;
-    limit = !isNaN(limit)?limit:10;
+    page = !isNaN(page) ? page : 1;
+    limit = !isNaN(limit) ? limit : 10;
 
-    var skip = (page-1)*limit;
-    var count = await Post.countDocuments({board: postType});
-    var maxPage = Math.ceil(count/limit);
-    var posts = await Post.find({board: postType})
+    var skip = (page - 1) * limit;
+    var count = await Post.countDocuments({
+      board: postType
+    });
+    var maxPage = Math.ceil(count / limit);
+    var posts = await Post.find({
+        board: postType
+      })
       .populate('author')
       .sort('-createdAt')
       .skip(skip)
@@ -32,44 +38,48 @@ router.get('/:boardName', async function(req, res){
       .exec();
 
     res.render('boards/' + boardName + '/index', {
-      posts:posts,
-      boardName:boardName,
-      currentPage:page,
-      maxPage:maxPage,
-      limit:limit
+      posts: posts,
+      boardName: boardName,
+      currentPage: page,
+      maxPage: maxPage,
+      limit: limit
     });
   }
 });
 
 // New
-router.get('/:boardName/new', util.isLoggedin, function(req, res){
+router.get('/:boardName/new', util.isLoggedin, function(req, res) {
   var boardName = req.params.boardName;
-  var postType = boardName.slice(0,-1);
+  var postType = boardName.slice(0, -1);
   var post = req.flash(postType)[0] || {};
   var errors = req.flash('errors')[0] || {};
 
-  res.render('boards/' + boardName + '/new', { post:post, boardName:boardName, errors:errors });
+  res.render('boards/' + boardName + '/new', {
+    post: post,
+    boardName: boardName,
+    errors: errors
+  });
 });
 
 // create
-router.post('/:boardName', util.isLoggedin, function(req, res){
+router.post('/:boardName', util.isLoggedin, function(req, res) {
   var boardName = req.params.boardName;
-  var postType = boardName.slice(0,-1);
+  var postType = boardName.slice(0, -1);
   req.body.author = req.user._id;
 
-  switch(boardName){
+  switch (boardName) {
     case 'notices':
-      Notice.create(req.body, function (err,post){
+      Notice.create(req.body, function(err, post) {
         createHelper(err, req, res);
       });
       break;
     case 'frees':
-      Free.create(req.body, function (err,post){
+      Free.create(req.body, function(err, post) {
         createHelper(err, req, res);
       });
       break;
     case 'trades':
-      Trade.create(req.body, function (err,post){
+      Trade.create(req.body, function(err, post) {
         createHelper(err, req, res);
       });
       break;
@@ -79,18 +89,57 @@ router.post('/:boardName', util.isLoggedin, function(req, res){
 });
 
 // show
-router.get('/:boardName/:id', function(req, res){
+router.get('/:boardName/:id', function(req, res) {
   var boardName = req.params.boardName;
-  var postType = boardName.slice(0,-1);
-  var commentForm = req.flash('commentForm')[0] || {_id: null, form: {}};
-  var commentError = req.flash('commentError')[0] || { _id:null, parentComment: null, errors:{}};
+  var postType = boardName.slice(0, -1);
+  var likes = Post.likes;
+  var commentForm = req.flash('commentForm')[0] || {
+    _id: null,
+    form: {}
+  };
+  var commentError = req.flash('commentError')[0] || {
+    _id: null,
+    parentComment: null,
+    errors: {}
+  };
 
   Promise.all([
-      Post.findOne({_id:req.params.id}).populate({ path: 'author', select: 'username' }),
-      Comment.find({post:req.params.id}).sort('createdAt').populate({ path: 'author', select: 'username' })
+      Post.findOne({
+        _id: req.params.id
+      }).populate({
+        path: 'author',
+        select: 'username'
+      }),
+      Comment.find({
+        post: req.params.id
+      }).sort('createdAt').populate({
+        path: 'author',
+        select: 'username'
+      })
     ])
     .then(([post, comments]) => {
-      res.render('boards/' + boardName + '/show', { post:post, boardName:boardName, comments:comments, commentForm:commentForm, commentError:commentError});
+      var liked = false;
+      console.log('req.user = ' + req.user);
+      if (req.user) {
+        var arr = post.likedPerson;
+        var userName = arr.find(element => element.equals(req.user._id));
+        if (userName === undefined) {
+          console.log(' liked is now false');
+          liked = false;
+        } else {
+          console.log(' liked is now true');
+          liked = true;
+        }
+      }
+      res.render('boards/' + boardName + '/show', {
+        post: post,
+        boardName: boardName,
+        comments: comments,
+        commentForm: commentForm,
+        commentError: commentError,
+        likes: likes,
+        liked: liked
+      });
     })
     .catch((err) => {
       console.log('err: ', err);
@@ -99,31 +148,45 @@ router.get('/:boardName/:id', function(req, res){
 });
 
 // edit
-router.get('/:boardName/:id/edit', util.isLoggedin, checkPermission, function(req, res){
+router.get('/:boardName/:id/edit', util.isLoggedin, checkPermission, function(req, res) {
   var boardName = req.params.boardName;
-  var postType = boardName.slice(0,-1);
+  var postType = boardName.slice(0, -1);
   var post = req.flash(postType)[0];
   var errors = req.flash('errors')[0] || {};
-  if(!post){
-    Post.findOne({_id:req.params.id}, function(err, post){
-        if(err) return res.json(err);
-        res.render('boards/' + boardName + '/edit', { post:post, boardName:boardName, errors:errors });
+  if (!post) {
+    Post.findOne({
+      _id: req.params.id
+    }, function(err, post) {
+      if (err) return res.json(err);
+      res.render('boards/' + boardName + '/edit', {
+        post: post,
+        boardName: boardName,
+        errors: errors
       });
-  }
-  else {
+    });
+  } else {
     post._id = req.params.id;
-    res.render('boards/' + boardName + '/edit', { post:post, boardName:boardName, errors:errors });
+    res.render('boards/' + boardName + '/edit', {
+      post: post,
+      boardName: boardName,
+      errors: errors
+    });
   }
 });
 
 // update
-router.put('/:boardName/:id', util.isLoggedin, checkPermission, function(req, res){
+router.put('/:boardName/:id', util.isLoggedin, checkPermission, function(req, res) {
   var boardName = req.params.boardName;
-  var postType = boardName.slice(0,-1);
+  var postType = boardName.slice(0, -1);
   req.body.updatedAt = Date.now();
-  Post.findOneAndUpdate({_id:req.params.id}, req.body, {runValidators:true}, function(err, post){
-    if(err){
-      req.flash(boardName, req.body);
+
+  Post.findOneAndUpdate({
+    _id: req.params.id
+  }, req.body, {
+    runValidators: true
+  }, function(err, post) {
+    if (err) {
+      req.flash(postType, req.body);
       req.flash('errors', util.parseError(err));
       return res.redirect('/boards/' + boardName + '/' + req.params.id + '/edit');
     }
@@ -132,29 +195,62 @@ router.put('/:boardName/:id', util.isLoggedin, checkPermission, function(req, re
 });
 
 // destroy
-router.delete('/:boardName/:id', util.isLoggedin, checkPermission, function(req, res){
+router.delete('/:boardName/:id', util.isLoggedin, checkPermission, function(req, res) {
   var boardName = req.params.boardName;
-  var postType = boardName.slice(0,-1);
-  Post.deleteOne({_id:req.params.id}, function(err){
-    if(err) return res.json(err);
+  var postType = boardName.slice(0, -1);
+
+  Post.deleteOne({
+    _id: req.params.id
+  }, function(err) {
+    if (err) return res.json(err);
     res.redirect('/boards/' + boardName);
   });
 });
 
+//likes
+router.post('/:boardName/:id/likes', util.isLoggedin,
+  function(req, res) {
+    var boardName = req.params.boardName;
+    var postType = boardName.slice(0, -1);
+    Post.findOne({
+      _id: req.params.id
+    }, function(err, post) {
+      if (err) {
+        console.log(err);
+        return res.status(500).send('Something went wrong!');
+      } else {
+        var arr = post.likedPerson;
+        var userName = arr.find(element => element.equals(req.user._id));
+        if (userName === undefined) {
+          post.likedPerson.push(req.user._id);
+          post.likes += 1;
+          post.save(function(err) {
+            if (err) return res.status(500).send('Something went wrong!');
+          });
+        }
+      }
+      return res.redirect('/boards/' + boardName + '/' + req.params.id);
+    });
+  });
+
 module.exports = router;
 
-function checkPermission(req, res, next){
-  Post.findOne({_id:req.params.id}, function(err, post){
-    if(err) return res.json(err);
-    if(post.author != req.user.id) return util.noPermission(req, res);
+function checkPermission(req, res, next) {
+  Post.findOne({
+    _id: req.params.id
+  }, function(err, post) {
+    if (err) return res.json(err);
+    if (post.author != req.user.id) return util.noPermission(req, res);
 
     next();
   });
 }
 
-function createHelper(err, req, res){
-  if(err){
-    req.flash(postType , req.body);
+function createHelper(err, req, res) {
+  var boardName = req.params.boardName;
+  var postType = boardName.slice(0, -1);
+  if (err) {
+    req.flash(postType, req.body);
     req.flash('errors', util.parseError(err));
     return res.redirect('/boards/' + boardName + '/new');
   }
