@@ -6,11 +6,13 @@
   <form action="/boards/<%= boardName + '/' + post._id %>?_method=delete" method="post" class="d-inline">
     <a class="btn btn-primary" href="#" onclick="confirm('Do you want to delete this?')?this.parentElement.submit():null;">Delete</a>
   </form>
-
-  <form action="/boards/<%= boardName + '/' + post._id+'/likes'%>?_method=post" method="post" class="d-inline">
-    <a class="btn btn-primary" href="#" onclick="confirm('Do you want to Like this?')?this.parentElement.submit():null;">Likes</a>
-  </form>
   <% } %>
+  <% console.log('@buttons') %>
+  <% console.log(' liked = ' + liked) %>
+  <form action="/boards/<%= boardName + '/' + post._id+'/likes'%>?_method=post" method="post" class="d-inline">
+    <a class="btn btn-primary <%= liked?'disabled':'' %>" href="#" onclick="this.parentElement.submit()">Likes</a>
+    <!-- class="btn btn-primary " -->
+  </form>
 </div>
 
 <div>

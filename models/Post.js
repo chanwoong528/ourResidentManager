@@ -23,7 +23,7 @@ var Post = mongoose.model('post', new Schema({
 
   likedPerson:
   {
-    type : Array, "default":[]
+    type : Array, default:[]
   },
   likes:
   {
