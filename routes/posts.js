@@ -124,7 +124,6 @@ router.get('/:boardName/:id', function(req, res) {
         var arr = post.likedPerson;
         var userName = arr.find(element => element.equals(req.user._id));
         if (userName === undefined) {
-          console.log(err);
           console.log(' liked is now false');
           liked = false;
         } else {
@@ -220,11 +219,15 @@ router.post('/:boardName/:id/likes', util.isLoggedin,
         console.log(err);
         return res.status(500).send('Something went wrong!');
       } else {
-        post.likedPerson.push(req.user._id);
-        post.likes += 1;
-        post.save(function(err) {
-          if (err) return res.status(500).send('Something went wrong!');
-        });
+        var arr = post.likedPerson;
+        var userName = arr.find(element => element.equals(req.user._id));
+        if (userName === undefined) {
+          post.likedPerson.push(req.user._id);
+          post.likes += 1;
+          post.save(function(err) {
+            if (err) return res.status(500).send('Something went wrong!');
+          });
+        }
       }
       return res.redirect('/boards/' + boardName + '/' + req.params.id);
     });
