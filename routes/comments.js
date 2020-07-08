@@ -23,6 +23,10 @@ router.post('/', util.isLoggedin, checkPostId, function(req, res) {
     }
     else{
 
+      post.comments++;
+      post.save();
+
+
 
     console.log('count++done');
     }

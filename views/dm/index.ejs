@@ -8,9 +8,15 @@
 
     <div class="container mb-3">
 
-      <h2 class="mb-3">About</h2>
+      <h2 class="mb-3">Chatting 상대</h2>
 
-      <P>chat_index</p>
+      <% if(targets == null || targets.length == 0){ %>
+      <tr>
+        <td colspan=100> There is no data to show :( </td>
+      </tr>
+      <% } %>
+      <span data-date-time="<%= targets %>"><%= targets %>
+      </span>
 
     </div>
   </body>

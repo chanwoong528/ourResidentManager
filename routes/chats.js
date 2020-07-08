@@ -1,13 +1,24 @@
 var express = require('express');
 var router = express.Router();
 var Chat = require('../models/Chat');
-var User = require('../models/User');
 var util = require('../util');
+var User = require('../models/User');
 
 // Index
-router.get('/', util.isLoggedin, function(req, res) {
-  //console.log(req.url);
-  res.render('dm/index');
+router.get('/', util.isLoggedin, function(req, res)
+{
+  var chats = req.user.activeChat;
+  var targets = [];
+  if (chats)
+  {
+    chats.forEach(element => function()
+    {
+      targets.push(element.target);
+    });
+
+    res.render('dm/index', {targets:targets});
+  }
+res.render('dm/index', {targets:targets});
 });
 
 // Show Chatroom
@@ -31,7 +42,7 @@ router.get('/:username', util.isLoggedin, function(req, res) {
       }
     });
   }
-  
+
   var chat = Chat.create();
   User.aggregate([{
       $match: {
