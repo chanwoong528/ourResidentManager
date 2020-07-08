@@ -8,3 +8,5 @@ router.get('/', function(req, res){
 router.get('/:id', function(req, res){
   res.render('home/' + id);
 });
+
+module.exports = router;
