@@ -1,20 +1,18 @@
 var mongoose = require('mongoose');
 
 // schema
-var chatSchema =mongoose.Schema({
+var chatSchema = mongoose.Schema({
   log: [{
-      text:
-      {
-        type:String,
-        default:''
-      },
-      createdAt:
-      {
-        type: Date,
-        default: Date.now
-      },
+    text: {
+      type: String,
+      default: ''
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    },
   }]
 });
 
-var Chat = mongoose.model('chat',chatSchema);
+var Chat = mongoose.model('chat', chatSchema);
 module.exports = Chat;

@@ -3,8 +3,8 @@ var router = express.Router();
 var Chat = require('../models/Chat');
 var util = require('../util');
 var User = require('../models/User');
-// Index
 
+// Index
 router.get('/', util.isLoggedin, function(req, res)
 {
   var chats = req.user.activeChat;
@@ -20,9 +20,6 @@ router.get('/', util.isLoggedin, function(req, res)
   }
 res.render('dm/index', {targets:targets});
 });
-
-
-
 
 // Show Chatroom
 router.get('/:username', util.isLoggedin, function(req, res) {
