@@ -13,38 +13,33 @@ var util = require('../util');
 // Index
 router.get('/:boardName', async function(req, res) {
   var boardName = req.params.boardName;
-  if (boardName !== 'notices' && boardName !== 'frees' && boardName !== 'trades') {
-    res.render('home/error');
-  } else {
-    var postType = boardName.slice(0, -1);
-    // console.log('boardName after getBoardName:' + boardName);
-    var page = Math.max(1, parseInt(req.query.page));
-    var limit = Math.max(1, parseInt(req.query.limit));
-    page = !isNaN(page) ? page : 1;
-    limit = !isNaN(limit) ? limit : 10;
+  var postType = boardName.slice(0, -1);
+  var page = Math.max(1, parseInt(req.query.page));
+  var limit = Math.max(1, parseInt(req.query.limit));
+  page = !isNaN(page) ? page : 1;
+  limit = !isNaN(limit) ? limit : 10;
 
-    var skip = (page - 1) * limit;
-    var count = await Post.countDocuments({
+  var skip = (page - 1) * limit;
+  var count = await Post.countDocuments({
+    board: postType
+  });
+  var maxPage = Math.ceil(count / limit);
+  var posts = await Post.find({
       board: postType
-    });
-    var maxPage = Math.ceil(count / limit);
-    var posts = await Post.find({
-        board: postType
-      })
-      .populate('author')
-      .sort('-createdAt')
-      .skip(skip)
-      .limit(limit)
-      .exec();
+    })
+    .populate('author')
+    .sort('-createdAt')
+    .skip(skip)
+    .limit(limit)
+    .exec();
 
-    res.render('boards/' + boardName + '/index', {
-      posts: posts,
-      boardName: boardName,
-      currentPage: page,
-      maxPage: maxPage,
-      limit: limit
-    });
-  }
+  res.render('boards/' + boardName + '/index', {
+    posts: posts,
+    boardName: boardName,
+    currentPage: page,
+    maxPage: maxPage,
+    limit: limit
+  });
 });
 
 // New

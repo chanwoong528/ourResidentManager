@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%- include('../partials/head') %>
+    <style>
+      .chat_log{ width: 95%; height: 200px; }
+      .name{ width: 10%; }
+      .message{ width: 70%; }
+      .chat{ width: 10%; }
+    </style>
+  </head>
+  <body>
+    <%- include('../partials/nav') %>
+
+    <div class="container mb-3">
+
+      <div>
+        <textarea id="chatLog" class="chat_log" readonly></textarea>
+        <% console.log('@chat.ejs') %>
+        <% console.log(' users ' + users) %>
+        <% console.log(' log ' + log) %>
+        <% console.log(' chatId ' + chatId) %>
+      </div>
+      <form id="chat">
+        <input id="name" class="name" type="text" value="<%= currentUser.username %>" readonly>
+        <input id="message" class="message" type="text">
+        <input type="submit" class="chat" value="chat" />
+      </form>
+      <div id="box" class="box">
+        <script src="//code.jquery.com/jquery-1.11.1.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+        $(function(){
+          var socket = io();
+          var chatId = "<%= chatId %>";
+          var log = "<%= log %>";
+          var username = "<%= currentUser.username %>";
+          socket.emit('init', chatId);
+          console.log('client socket: ' + socket);
+          $('#chatLog').append(log + '\n');
+          $('#chatLog').scrollTop($('#chatLog')[0].scrollHeight);
+          $('#chat').on('submit', function(e) {
+            if ($('#message').val() !== '' && $('#message').val() !== null){
+              socket.emit('send message', username, $('#message').val(), chatId);
+            }
+            $('#message').val('');
+            $('#message').focus();
+            e.preventDefault();
+          });
+          socket.on('receive message', function(msg) {
+            $('#chatLog').append(msg + '\n');
+            $('#chatLog').scrollTop($('#chatLog')[0].scrollHeight);
+          });
+        });
+        </script>
+
+      </div>
+
+    </div>
+  </body>
+</html>

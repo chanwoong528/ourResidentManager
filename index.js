@@ -10,6 +10,11 @@ var passport = require('./config/passport');//npm
 var util = require('./util');
 
 var app = express();
+
+// Socket server setting
+var server = require('http').createServer(app);
+var io = require('socket.io').listen(server);
+
 var dbUrl = 'mongodb+srv://moon528:ms5028@cluster0-vltfk.mongodb.net/TownBoard?retryWrites=true&w=majority';
 
 // DB setting
@@ -48,15 +53,61 @@ app.use(function(req,res,next){
   next();
 });
 
-
 // Routes
-app.use('/', util.getPostQueryString, require('./routes/home'));
+app.use('/', require('./routes/home'));
 app.use('/users', require('./routes/users'));
-app.use('/boards' , require('./routes/posts'));
-app.use('/comments', require('./routes/comments'));
+app.use('/dm', require('./routes/chats'));
+app.use('/boards', util.getPostQueryString, require('./routes/posts'));
+app.use('/comments', util.getPostQueryString, require('./routes/comments'));
+
+// Chat server
+var Chat = require('./models/Chat');
+var User = require('./models/User');
+
+io.on('connection', function(socket) {
+  // socket.join(chatId);
+  // console.log(socket.id + ' connected to: ', chatId);
+  // var msg = 'SYSTEM : You are now connected to chat!';
+  // var bmsg = 'SYSTEM : Your opponent is connected to chat!'
+  // socket.emit('receive message', msg);
+  // socket.broadcast.to(chatId).emit('receive message', bmsg);
+  socket.on('init', function(chatId){
+    socket.join(chatId);
+    console.log('===== ' + socket.id + ' connected to: ', chatId);
+    var msg = 'SYSTEM : You are now connected to chat!';
+    var bmsg = 'SYSTEM : Your opponent is connected to chat!'
+    socket.emit('receive message', msg);
+    socket.broadcast.to(chatId).emit('receive message', bmsg);
+  });
+
+  socket.on('send message', function(username, text, chatId){
+    var time = (new Date(Date.now())).toString();
+    var msg = '[' + username + '] ' + text + ' --' + time;
+    console.log(msg);
+    io.in(chatId).emit('receive message', msg);
+
+    // add message to db log
+    Chat.aggregate([
+      {$match: {_id:chatId}},
+      {$addToSet:{log:{username: username, text:text, createdAt:time}}}
+    ]);
+  });
+
+  socket.on('disconnect', function(){
+    console.log('a user disconnected: ', socket.id);
+  });
+
+  socket.on('close chat', function(){
+    console.log('closing ', socket.id);
+    // close room
+  });
+});
 
 // Port setting
 var port = process.env.PORT || 3000;
-app.listen(port, function(){
+server.listen(port, function(){
   console.log('server on! http://localhost:'+port);
 });
+// app.listen(port, function(){
+//   console.log('server on! http://localhost:'+port);
+// });
