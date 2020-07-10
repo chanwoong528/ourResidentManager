@@ -87,7 +87,8 @@ io.on('connection', function(socket) {
     io.in(chatId).emit('receive message', msg);
 
     // add message to db log
-    Chat.findOneAndUpdate({_id:new objectId(chatId)},{$addToSet:log});
+    var chat_id = mongoose.Types.ObjectId(chatId);
+    Chat.updateOne({_id:chat_id},{$addToSet:msg});
   });
 
   socket.on('disconnect', function(){
