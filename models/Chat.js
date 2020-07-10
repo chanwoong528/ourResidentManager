@@ -10,15 +10,7 @@ var chatSchema = mongoose.Schema({
       // above will find Chat with donkim1212 and moon528 as chatroom users
   }],
   log: [{
-    username: {
-      type: String,
-    },
-    text: {
-      type: String,
-    },
-    createdAt: {
-      type: Date,
-    },
+    type:String
   }]
 });
 
