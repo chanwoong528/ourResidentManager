@@ -75,7 +75,7 @@ io.on('connection', function(socket) {
     socket.join(chatId);
     console.log('===== ' + socket.id + ' connected to: ', chatId);
     var msg = 'SYSTEM : You are now connected to chat!';
-    var bmsg = 'SYSTEM : Your opponent is connected to chat!'
+    var bmsg = 'SYSTEM : Your opponent is connected to chat!';
     socket.emit('receive message', msg);
     socket.broadcast.to(chatId).emit('receive message', bmsg);
   });
