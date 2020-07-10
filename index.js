@@ -87,10 +87,7 @@ io.on('connection', function(socket) {
     io.in(chatId).emit('receive message', msg);
 
     // add message to db log
-    Chat.aggregate([
-      {$match: {_id:chatId}},
-      {$addToSet:{log:{username: username, text:text, createdAt:time}}}
-    ]);
+    Chat.findOneAndUpdate({_id:new objectId(chatId)},{$addToSet:log});
   });
 
   socket.on('disconnect', function(){
