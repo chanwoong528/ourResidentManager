@@ -1,7 +1,6 @@
 {
   "name": "board",
   "version": "1.0.0",
-  "engines" : { "node" : ">=0.12" },
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -11,6 +10,10 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": ">=0.12",
+    "npm": ">=6.0.0"
+  },
   "dependencies": {
     "alert-node": "^3.0.11",
     "bcryptjs": "^2.4.3",
