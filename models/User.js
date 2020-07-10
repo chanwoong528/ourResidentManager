@@ -35,7 +35,7 @@ var userSchema = mongoose.Schema({
   },
   activeChats:[{
     target:String,
-    id:{type:mongoose.Schema.Types.ObjectId, ref:'user', required:true}
+    chatId:{type:mongoose.Schema.Types.ObjectId, ref:'chat', required:true}
   }]
 },{
   toObject:{virtuals:true}
