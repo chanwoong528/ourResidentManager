@@ -9,8 +9,8 @@
   <% } %>
   <form action="/boards/<%= boardName + '/' + post._id+'/likes'%>?_method=post" method="post" class="d-inline">
     <a class="btn btn-primary <%= liked?'disabled':'' %>" href="#" onclick="this.parentElement.submit()">Likes</a>
-    <% if(boardName === 'trades'){ %>
-      <a class="btn btn-primary" href="/dm/<%= post.author.username %>/show">Chat</a>
+    <% if(boardName === 'trades' && isAuthenticated){ %>
+      <a class="btn btn-primary <% currentUser.id == post.author.id?'disabled':'' %>" href="/dm/<%= post.author.username %>/show">Chat</a>
     <% } %>
     <!-- class="btn btn-primary " -->
   </form>

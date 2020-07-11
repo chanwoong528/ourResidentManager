@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-sm navbar-light bg-light mb-3">
   <div class="container">
 
-<div class="navbar-brand">가제:우리동네 게시판 </div>
+    <div class="navbar-brand">가제:우리동네 게시판 </div>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -15,16 +15,40 @@
 
       </ul>
       <ul class="navbar-nav ml-auto">
-          <% if(isAuthenticated){ %> <!-- 1 -->
-            <li class="nav-item"><a href="/dm/" class="nav-link">Chat</a></li>
-            <li class="nav-item"><a href="/users/<%= currentUser.username %>" class="nav-link">My Account</a></li>
-            <li class="nav-item"><a href="/logout" class="nav-link">Logout</a></li>
+        <% if(isAuthenticated){ %>
 
-          <% } else { %>
-            <li class="nav-item"><a href="/users/new" class="nav-link">Sign Up</a></li>
-            <li class="nav-item"><a href="/login" class="nav-link">Login</a></li>
-          <% } %>
-        </ul>
+        <!-- <li class="nav-item">
+          <a href="/dm/" class="nav-link">Chat</a>
+          <span class="notification-counter">0</span>
+        </li>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script>
+          $(function() {
+            $('button').click(function() {
+              var $counter, val;
+              $counter = $('.notification-counter');
+              val = parseInt($counter.text());
+              val++;
+              return $counterads.css({
+                opacity: 0
+              }).text(val).css({
+                top: '-10px'
+              }).transition({
+                top: '-2px',
+                opacity: 1
+              });
+            });
+          }).call(this);
+        </script> -->
+        <!-- <li class="nav-item"><a href="/dm/" class="nav-link">Chat</a></li> -->
+        <li class="nav-item"><a href="/users/<%= currentUser.username %>" class="nav-link">My Account</a></li>
+        <li class="nav-item"><a href="/logout" class="nav-link">Logout</a></li>
+
+        <% } else { %>
+        <li class="nav-item"><a href="/users/new" class="nav-link">Sign Up</a></li>
+        <li class="nav-item"><a href="/login" class="nav-link">Login</a></li>
+        <% } %>
+      </ul>
     </div>
   </div>
 </nav>

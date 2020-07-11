@@ -114,15 +114,15 @@ router.get('/:boardName/:id', function(req, res) {
     ])
     .then(([post, comments]) => {
       var liked = false;
-      console.log('req.user = ' + req.user);
+      // console.log('req.user = ' + req.user);
       if (req.user) {
         var arr = post.likedPerson;
         var userName = arr.find(element => element.equals(req.user._id));
         if (userName === undefined) {
-          console.log(' liked is now false');
+          // console.log(' liked is now false');
           liked = false;
         } else {
-          console.log(' liked is now true');
+          // console.log(' liked is now true');
           liked = true;
         }
       }
