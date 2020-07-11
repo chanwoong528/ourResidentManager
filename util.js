@@ -1,6 +1,7 @@
 var util = {};
 
-util.parseError = function(errors){
+util.parseError = function(errors) {
+
   var parsed = {};
   if(errors.name == 'ValidationError'){
     for(var name in errors.errors){
@@ -8,7 +9,7 @@ util.parseError = function(errors){
       parsed[name] = { message:validationError.message };
     }
   }
-  else if(errors.code == '11000' && errors.errmsg.indexOf('username') > 0) {
+  else if(errors.code == '11000' || errors.errmsg.indexOf('username') > 0) {
     parsed.username = { message:'This username already exists!' };
   }
   else {

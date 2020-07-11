@@ -9,20 +9,20 @@
     <div class="col-md-5 col-lg-4 col-xl-3 order-sm-1 order-md-2">
       <div class="post-info card m-2 p-2">
         <div class="border-bottom pb-1 mb-1">
-          <span>Author</span> : <%= post.author ? post.author.username : "" %>
+          <span>글쓴이</span> : <%= post.author ? post.author.name : "" %>
         </div>
-        <div><span>Created</span> :
-          <span style="font-size: 50%" data-date-time="<%= post.createdAt %>"><%= post.createdAt %>
+        <div><span>작성일</span> :
+          <span data-date-time="<%= post.createdAt %>"><%= post.createdAt %>
           </span>
         </div>
         <% if(post.updatedAt) { %>
-        <div><span>Updated</span> :
+        <div><span>수정일</span> :
            <span data-date-time="<%= post.updatedAt %>"><%= post.updatedAt %>
            </span>
         </div>
         <% } %>
 
-        <div><span>Likes</span> :
+        <div><span>좋아요</span> :
            <%= post.likes %>
 
         </div>
