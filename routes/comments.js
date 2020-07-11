@@ -26,9 +26,7 @@ router.post('/', util.isLoggedin, checkPostId, function(req, res) {
       post.comments++;
       post.save();
 
-
-
-    console.log('count++done');
+    // console.log('count++done');
     }
     return res.redirect('/boards/' + post.board + 's/' + post._id + res.locals.getPostQueryString());
     // post.board contains folder name (e.g., notices), which will help redirect to appropriate page

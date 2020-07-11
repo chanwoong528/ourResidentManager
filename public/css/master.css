@@ -19,6 +19,30 @@ body {
   width: 100px;
 }
 
+/* .notification-container {
+    position: relative;
+    width: 16px;
+    height: 16px;
+    top: 15px;
+    left: 15px;
+
+    i {
+        color: #fff;
+    }
+}
+
+.notification-counter {
+    position: relative;
+    top: -40px;
+    left: 40px;
+
+    background-color: rgba(212, 19, 13, 1);
+    color: #fff;
+    border-radius: 3px;
+    padding: 1px 3px;
+    font: 8px Verdana;
+} */
+
 .post-body{
   white-space: pre-line;
 }
