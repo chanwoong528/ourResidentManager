@@ -4,13 +4,14 @@ var bcrypt = require('bcryptjs'); // 1
 
 
 
+
 var userSchema = mongoose.Schema({
   username:{
     type:String,
     required:[true,'Username is required!'],
     match:[/^.{4,12}$/,'Should be 4-12 characters!'],
     trim:true,
-    unique:true
+    unique:[true, 'username already exist']
   },
   password:{
     type:String,
@@ -20,7 +21,6 @@ var userSchema = mongoose.Schema({
   name:{
     type:String,
     required:[true,'Name is required!'],
-    match:[/^.{4,12}$/,'Should be 4-12 characters!'],
     trim:true
   },
   addr:{
@@ -31,8 +31,13 @@ var userSchema = mongoose.Schema({
   email:{
     type:String,
     match:[/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,'Should be a vaild email address!'],
+    unique: true,
     trim:true
   },
+  email_verified :{
+      type: Boolean, required:true, default: false
+    },
+    key_for_verify :{ type: String, required:true },
   activeChats:[{
     type:mongoose.Schema.Types.ObjectId,
     ref:'chat'
@@ -63,7 +68,9 @@ userSchema.virtual('newPassword')
 // password validation
 var passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{4,16}$/;
 var passwordRegexErrorMessage = 'Should be minimum 4 characters of alphabet and number combination!';
-userSchema.path('password').validate(function(v) {
+userSchema.path('password').validate(function(v)
+{
+
   var user = this;
 
 
@@ -97,6 +104,8 @@ userSchema.path('password').validate(function(v) {
      }
    }
  });
+
+
  // hash password // 3
  userSchema.pre('save', function (next){
    var user = this;

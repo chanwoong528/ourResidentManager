@@ -9,11 +9,15 @@ var passport = require('./config/passport');//npm
 
 var util = require('./util');
 
+
+var crypto = require('crypto');
 var app = express();
 
 // Socket server setting
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
+
+
 
 var dbUrl = 'mongodb+srv://moon528:ms5028@cluster0-vltfk.mongodb.net/TownBoard?retryWrites=true&w=majority';
 
