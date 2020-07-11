@@ -103,13 +103,13 @@ router.get('/:boardName/:id', function(req, res) {
         _id: req.params.id
       }).populate({
         path: 'author',
-        select: 'name'
+        select: ['name','username']
       }),
       Comment.find({
         post: req.params.id
       }).sort('createdAt').populate({
         path: 'author',
-        select: 'name'
+        select: ['name','username']
       })
     ])
     .then(([post, comments]) => {
