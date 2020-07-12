@@ -40,11 +40,20 @@ router.get('/:username', util.isLoggedin, function(req, res) {
     users:{$all:[user1,user2]}
   }, function(err,chat){
     if (err) return console.log(err);
-    // console.log(' chat.log = ' + chat.log);
+    console.log(' !!!!!!!!!!!!! chat.log = ' + chat.log);
+    console.log(' !!!!!!!!!!!!! chat.log[1] = ' + chat.log[1]);
+    var log = '';
+    chat.log.forEach((item, i) => {
+      log = log.concat(item.value);
+      log = log.concat('\n');
+      console.log(' [' + i + '] ' + log);
+    });
+
+    console.log(' !!!!!!!!!!!!! typeof chat.log = ' + typeof chat.log);
     res.render('dm/chat',{
       chatId:chat._id.toString(),
       users:chat.users,
-      log:chat.log
+      log:log
     });
   });
 });

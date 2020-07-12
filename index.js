@@ -73,12 +73,12 @@ var logger = new Logger();
 io.on('connection', function(socket) {
   socket.on('init', function(chatId){
     socket.join(chatId);
-    var log = logger.init(socket.id, chatId);
+    logger.init(socket.id, chatId);
     // console.log('===== ' + socket.id + ' connected to: ', chatId);
     var msg = 'SYSTEM : You are now connected to chat!';
     var bmsg = 'SYSTEM : Your opponent is connected to chat!';
     // socket.emit('clear');
-    socket.emit('receive message', log);
+    // socket.emit('receive message', log);
     socket.emit('receive message', msg);
     socket.broadcast.to(chatId).emit('receive message', bmsg);
   });
@@ -90,8 +90,16 @@ io.on('connection', function(socket) {
     io.in(chatId).emit('receive message', msg);
 
     // Add message to db log
-    // var chat_id = mongoose.Types.ObjectId(chatId);
-    // Chat.updateOne({_id:chat_id},{$addToSet:msg});
+    var chat_id = mongoose.Types.ObjectId(chatId);
+    Chat.findOne({_id:chat_id}, function(err,chat){
+      if (err) console.log(' ?????? what??? \n' + err);
+      if (chat){
+        chat.log.push({value:msg});
+        chat.save(function(err){
+          if (err) console.log(' could not save message to DB: ' + err);
+        });
+      }
+    });
 
     // will probably have to make a function w/ prototype
     //  containing an array that saves log strings of every chat room.
