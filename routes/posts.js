@@ -88,6 +88,8 @@ router.get('/:boardName/:id', function(req, res) {
   var boardName = req.params.boardName;
   var postType = boardName.slice(0, -1);
   var likes = Post.likes;
+  var views = Post.views;
+  var comments = Post.comments;
   var commentForm = req.flash('commentForm')[0] || {
     _id: null,
     form: {}
@@ -114,6 +116,9 @@ router.get('/:boardName/:id', function(req, res) {
     ])
     .then(([post, comments]) => {
       var liked = false;
+
+        post.views++; // 2
+        post.save();
       // console.log('req.user = ' + req.user);
       if (req.user) {
         var arr = post.likedPerson;
@@ -133,7 +138,10 @@ router.get('/:boardName/:id', function(req, res) {
         commentForm: commentForm,
         commentError: commentError,
         likes: likes,
-        liked: liked
+        liked: liked,
+        views: views,
+        comments:comments
+
       });
     })
     .catch((err) => {

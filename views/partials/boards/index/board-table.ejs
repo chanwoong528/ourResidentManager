@@ -2,7 +2,8 @@
 
   <thead class="thead-light">
     <tr>
-      <th scope="col" width=50> 제목 </th>
+      <th scope="col" width = 500> 제목 </th>
+      <th scope="col" > 조회수 </th>
       <th scope="col" class="author"> 작성자 </th>
       <th scope="col" class="date"> 작성일 </th>
     </tr>
@@ -17,11 +18,15 @@
     <% posts.forEach(function(post) { %>
     <tr>
       <td>
-        <a href="/boards/<%= boardName + '/' + post._id %>">
-          <div class="ellipsis"><%= post.title %></div>
-        </a>
-        <div class="ellipsis">좋아요 : <%= post.likes %></div>
+        <div class="ellipsis">
+        <a href="/boards/<%= boardName + '/' + post._id %>"><%= post.title %></a>
+        <i class='far fa-thumbs-up' style='font-size:12px'></i>: <%= post.likes %>
 
+        </div>
+        <div class="ellipsis">댓글 수 : <%= post.comments %> </div>
+      </td>
+      <td>
+        <div> <i class="fa fa-eye" style="font-size:12px"></i>: <%= post.views %></div>
       </td>
       <td class="author">
         <!-- 2 -->
