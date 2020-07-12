@@ -1,7 +1,7 @@
 <form action="/boards/<%= boardName + '/' + post._id %>?_method=put" method="post">
-  
+
   <div class="form-group">
-    <label for="title">Title</label>
+    <label for="title">제목</label>
     <input type="text" id="title" name="title" value="<%= post.title %>" class="form-control <%= (errors.title)?'is-invalid':'' %>">
     <% if(errors.title){ %>
       <span class="invalid-feedback"><%= errors.title.message %></span>
@@ -9,7 +9,7 @@
   </div>
 
   <div class="form-group">
-    <label for="body">Body</label>
+    <label for="body">내용</label>
     <textarea id="body" name="body" rows="5" class="form-control <%= (errors.body)?'is-invalid':'' %>"><%= post.body %></textarea>
     <% if(errors.body){ %>
       <span class="invalid-feedback"><%= errors.body.message %></span>
@@ -23,8 +23,8 @@
   <% } %>
 
   <div>
-    <a class="btn btn-primary" href="/boards/<%= boardName %>">Back</a>
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <a class="btn btn-primary" href="/boards/<%= boardName %>">뒤로가기</a>
+    <button type="submit" class="btn btn-primary">작성</button>
   </div>
 
 </form>

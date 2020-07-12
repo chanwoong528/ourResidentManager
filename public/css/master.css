@@ -12,12 +12,33 @@ body {
   text-overflow: ellipsis;
 }
 
+
+.navbar-brand
+{
+font-size: 2.8em;
+
+}
+
+div.about {
+  border-style: solid;
+  width : 500px;
+   border-width:  0 0 0px 0px;
+   padding: 12px;
+   word-break: break-all;
+
+   
+    }
+
+
+
 .board-table {
-  table-layout: fixed;
+/*  table-layout: fixed;*/
+
+  overflow-x: auto;
+  margin-left: auto;
+    margin-right: auto;
 }
-.board-table .date {
-  width: 100px;
-}
+
 
 /* .notification-container {
     position: relative;
@@ -67,14 +88,25 @@ body {
 .user-form {
   width: 400px;
 }
-.board-table {
-  table-layout: fixed;
-}
-.board-table .author,
-.board-table .date {
-  width: 100px;
+.board-table .title
+{
+  width : 400px;
+  text-align: center;
+    overflow-x: auto;
 }
 
+.board-table .author,
+.board-table .date
+{
+  text-align: center;
+
+    overflow-x: auto;
+
+}
+.small {
+  font-size: smaller;
+  color : red;
+}
 
 .button__badge {
   background-color: #fa3e3e;
