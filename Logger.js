@@ -9,7 +9,7 @@ Logger.prototype.getData = function (id){
 Logger.prototype.init = function(socketId, chatId){
   var data = Logger.prototype.getData(chatId);
   if (data == -1){
-    var set = [chatId, '', socketId];
+    var set = [chatId, new Array(), socketId];
     Logger.prototype.log.push(set);
     return set[1];
   }
@@ -21,25 +21,27 @@ Logger.prototype.init = function(socketId, chatId){
 }
 Logger.prototype.appendLog = function(id, msg){
   var data = Logger.prototype.getData(id);
-  data[1] += msg + '\n';
+  data[1].push(msg);
   return data[1];
 }
 Logger.prototype.getChatId = function (socketId){
   var data = Logger.prototype.getData(socketId);
   return data[0];
 }
-Logger.prototype.getLog = function (chatId){
+Logger.prototype.getLogArray = function (chatId){
   var data = Logger.prototype.getData(chatId);
   return data[1];
 }
 Logger.prototype.flush = function (socketId){
   var data = Logger.prototype.getData(socketId);
-  var ret = (data == -1)? '':data[1];
-  var i = Logger.prototype.log.indexOf(data);
-  Logger.prototype.log.splice(i,1);
+  var ret = data[1];
+  data[1] = new Array();
+  // var i = Logger.prototype.log.indexOf(data);
+  // Logger.prototype.log.splice(i,1);
+  Logger.prototype.socketIdExpired(socketId);
   return ret;
 }
-Logger.prototype.socketExpired = function(socketId){
+Logger.prototype.socketIdExpired = function(socketId){
   var data = Logger.prototype.getData(socketId);
   if (data == -1){
     console.log(" @Logger: No such data containing socket: " + socketId)
@@ -47,6 +49,18 @@ Logger.prototype.socketExpired = function(socketId){
   }
   var i = data.indexOf(socketId);
   data.splice(i,1);
+  return 1;
+}
+Logger.prototype.removeChatEnrtybyChatId = function(chatId){
+  // this should be triggered when both users exits chatroom
+  // please check above status before using this function
+  var data = Logger.prototype.getData(chatId);
+  if (data == -1){
+    console.log(" @Logger: No chat entry for: " + chatId);
+    return -1;
+  }
+  var i = Logger.prototype.log.indexOf(data);
+  Logger.prototype.log.splice(i,1);
   return 1;
 }
 

@@ -89,31 +89,21 @@ io.on('connection', function(socket) {
     // console.log(msg);
     io.in(chatId).emit('receive message', msg);
 
-    // Add message to db log
-    var chat_id = mongoose.Types.ObjectId(chatId);
-    Chat.findOne({_id:chat_id}, function(err,chat){
-      if (err) console.log(' ?????? what??? \n' + err);
-      if (chat){
-        chat.log.push({value:msg});
-        chat.save(function(err){
-          if (err) console.log(' could not save message to DB: ' + err);
-        });
-      }
-    });
-
-    // will probably have to make a function w/ prototype
-    //  containing an array that saves log strings of every chat room.
-
     logger.appendLog(chatId, msg);
-    console.log(logger.getLog(chatId));
+    console.log(logger.getLogArray(chatId));
   });
 
   socket.on('disconnect', function(){
     // io.sockets.client(room); <<< get array of sockets in room
     console.log('a user disconnected: ', socket.id);
     var chatId = logger.getChatId(socket.id);
-    console.log(' chatId: ' + chatId);
     io.in(chatId).emit('receive message', 'SYSTEM: A user disconnected.');
+    var localLog = logger.flush(socket.id);
+    // Add server chat log to DB chat log
+    Chat.findOneByChatIdString(chatId,function(err,chat){
+      if (err) console.log(err);
+      if (chat && localLog != -1) chat.addMsgArrayToLog(localLog);
+    });
   });
 
   socket.on('end chat', function(chatId){

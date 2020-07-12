@@ -7,9 +7,6 @@ var Trade = require('../models/Trade');
 var Comment = require('../models/Comment');
 var util = require('../util');
 
-
-
-
 // Index
 router.get('/:boardName', async function(req, res) {
   var boardName = req.params.boardName;
