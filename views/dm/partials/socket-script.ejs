@@ -12,13 +12,17 @@ $(function(){
   $('#chatLog').scrollTop($('#chatLog')[0].scrollHeight);
   $('#chat').on('submit', function(e) {
     if ($('#message').val() !== '' && $('#message').val() !== null){
-      socket.emit('send message', username, $('#message').val(), chatId);
+      socket.emit('send message', chatId, username, $('#message').val(), new Date(Date.now()));
     }
     $('#message').val('');
     $('#message').focus();
     e.preventDefault();
   });
-  socket.on('receive message', function(msg) {
+  socket.on('receive message', function(username, msg, stamp) {
+    $('#chatLog').append(msg + '\n');
+    $('#chatLog').scrollTop($('#chatLog')[0].scrollHeight);
+  });
+  socket.on('init log', function(log) {
     $('#chatLog').append(msg + '\n');
     $('#chatLog').scrollTop($('#chatLog')[0].scrollHeight);
   });

@@ -19,12 +19,8 @@
       <ul class="navbar-nav ml-auto">
         <% if(isAuthenticated){ %>
         <!-- 1 -->
-        <li><a href="/dm/" class="nav-link">
-            <!--message-->
-            <i class='far fa-comment-dots' style='font-size:24px'></i>
-            <span class="button__badge">2</span>
-            <!--have to changeto chat.length-->
-          </a>
+        <li>
+          <%- include('./chat-icon') %>
         </li>
         <li class="nav-item"><a href="/users/<%= currentUser.username %>" class="nav-link">My Account</a></li>
         <li class="nav-item"><a href="/logout" class="nav-link">로그아웃</a></li>

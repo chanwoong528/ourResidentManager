@@ -2,37 +2,81 @@ var mongoose = require('mongoose');
 
 // schema
 var chatSchema = mongoose.Schema({
-  users:[{
-      type:String
-      // Chat.findOne({users:{$all:["donkim1212","moon528"]}}, function(err, user){
-      //   // TODO
-      // });
-      // // above will find Chat with donkim1212 and moon528 as chatroom users
+  users: [{
+    type: String
   }],
   log: [{
-    type:String,
-    default:''
+    username: {
+      type: String,
+      default:''
+    },
+    msg: {
+      type: String,
+      required: [true, "Log must contain (String) message!"]
+    },
+    time_stamp: {
+      type: Date,
+      default: Date.now
+    },
+    default: [{}]
   }]
 });
 
-chatSchema.methods.addMsgToLog = function(msg){
-  this.log.push(msg);
-  // console.log('--log: ' + this.log + '\n --msg: ' + msg);
-  this.save(function (err){
+/**
+ * @param {string} username User document's username
+ * @param {string} msg Message sent from a chatroom by a user
+ * @param {Date} time Date + time when the message was sent
+ */
+chatSchema.methods.addToLog = function(username, msg, time) {
+  this.log.push({ username: username }, { msg: msg }, { time_stamp: time });
+  this.save(function(err) {
     if (err) console.log(err);
   });
 };
 
-chatSchema.methods.addMsgArrayToLog = function(msgArray){
-  msgArray.forEach((msg, i) => {
-    this.log.push(msg);
+chatSchema.methods.addAllToLog = function (logArr) {
+  logArr.forEach((item, i) => {
+    this.addToLog(item[0],item[1],item[2]);
   });
   this.save(function(err){
     if (err) console.log(err);
   });
 };
 
-chatSchema.methods.getLogAsString = function(){
+/**
+ * @returns log array saved in this chatroom, {string} username, {string} message, {date} time_stamp
+ */
+chatSchema.methods.getLog = function() {
+  return this.log;
+}
+
+/**
+ * @deprecated
+ */
+chatSchema.methods.addMsgToLog = function(msg) {
+  this.log.push(msg);
+  // console.log('--log: ' + this.log + '\n --msg: ' + msg);
+  this.save(function(err) {
+    if (err) console.log(err);
+  });
+};
+
+/**
+ * @deprecated
+ */
+chatSchema.methods.addMsgArrayToLog = function(msgArray) {
+  msgArray.forEach((msg, i) => {
+    this.log.push(msg);
+  });
+  this.save(function(err) {
+    if (err) console.log(err);
+  });
+};
+
+/**
+ * @deprecated
+ */
+chatSchema.methods.getLogAsString = function() {
   var ret = '';
   this.log.forEach((item, i) => {
     ret = ret.concat(item);
@@ -49,9 +93,9 @@ chatSchema.methods.getLogAsString = function(){
  *          If no match exists, then create one with the usernames.
  *          It can be accessed through callback, e.g., function(err,document).
  */
-chatSchema.statics.findOneByUsernames = function (user1, user2, callback){
-  this.findOne({users:{$all:[user1,user2]}}, (err, result) => {
-    return result? callback(err,result):this.create({users:[user1,user2]},
+chatSchema.statics.findOneByUsernames = function(user1, user2, callback) {
+  this.findOne({ users: { $all: [user1, user2] } }, (err, result) => {
+    return result ? callback(err, result) : this.create({ users: [user1, user2] },
       (err, result) => { return callback(err, result) });
   });
 };
@@ -63,9 +107,19 @@ chatSchema.statics.findOneByUsernames = function (user1, user2, callback){
  * @returns an error and a Chat document with the matching _id.
  *          It can be accessed through callback, e.g., function(err,document).
  */
-chatSchema.statics.findOneByChatIdString = function(chatId, callback){
+chatSchema.statics.findOneByChatIdString = function(chatId, callback) {
   var cid = mongoose.Types.ObjectId(chatId);
-  return this.findOne({_id:cid}, callback);
+  this.findOne({ _id: cid },(err, result) => {
+    return result ? callback(err, result) : -1;
+  });
+};
+
+/**
+ * @param {string} username User model's username
+ * @returns set of Chat documents containing given username
+ */
+chatSchema.statics.findAllByUsername = function(username, callback) {
+  return this.find({ username: { $elemMatch: { username } } }, callback);
 };
 
 var Chat = mongoose.model('chat', chatSchema);
