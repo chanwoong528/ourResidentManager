@@ -9,9 +9,16 @@ var chatSchema = mongoose.Schema({
       // });
       // // above will find Chat with donkim1212 and moon528 as chatroom users
   }],
-  log: [{
-    type:String
-  }]
+  log: {
+    type:[{
+      _id: false,
+      value:{
+        type:String,
+        default:''
+      }
+    }],
+    default:[{}]
+  }
 });
 
 var Chat = mongoose.model('chat', chatSchema);

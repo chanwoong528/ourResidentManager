@@ -19,10 +19,10 @@
       </div>
       <div>
         <textarea id="chatLog" class="chat_log" readonly></textarea>
-        <!-- <% console.log('@chat.ejs') %>
+        <% console.log('@chat.ejs') %>
         <% console.log(' users ' + users) %>
         <% console.log(' log ' + log) %>
-        <% console.log(' chatId ' + chatId) %> -->
+        <% console.log(' chatId ' + chatId) %>
       </div>
       <form id="chat">
         <input id="name" class="name" type="text" value="<%= currentUser.username %>" readonly>
@@ -36,11 +36,11 @@
         $(function(){
           var socket = io();
           var chatId = "<%= chatId %>";
-          var log = "<%= log %>";
+          var log = `<%= log %>`;
           var username = "<%= currentUser.username %>";
           socket.emit('init', chatId);
           console.log('client socket: ' + socket);
-          $('#chatLog').append(log + '\n');
+          $('#chatLog').append(log);
           $('#chatLog').scrollTop($('#chatLog')[0].scrollHeight);
           $('#chat').on('submit', function(e) {
             if ($('#message').val() !== '' && $('#message').val() !== null){
