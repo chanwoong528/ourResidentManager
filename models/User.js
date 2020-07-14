@@ -33,17 +33,12 @@ var userSchema = mongoose.Schema({
     requried: true
   },
   isAdmin:{
-    type:Boolean, required:true, default:false
+    type:Boolean, default:false
   },
   email_verified :{
-    type: Boolean,
-    required:true,
-    default: false
+      type: Boolean, default: false
   },
-  key_for_verify :{
-    type: String,
-    required:true
-  },
+  key_for_verify :{ type: String},
   activeChats:[{
     type:mongoose.Schema.Types.ObjectId,
     ref:'chat'

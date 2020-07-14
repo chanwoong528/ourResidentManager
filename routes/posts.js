@@ -6,6 +6,7 @@ var Free = require('../models/Free');
 var Trade = require('../models/Trade');
 var Comment = require('../models/Comment');
 var util = require('../util');
+var User = require('../models/User');
 
 // Index
 router.get('/:boardName', async function(req, res) {
@@ -45,12 +46,18 @@ router.get('/:boardName/new', util.isLoggedin, function(req, res) {
   var postType = boardName.slice(0, -1);
   var post = req.flash(postType)[0] || {};
   var errors = req.flash('errors')[0] || {};
+  if(boardName =='notices'&& !req.user.isAdmin)
+  {
+    return util.noPermission(req, res);
 
+  }
+  else{
   res.render('boards/' + boardName + '/new', {
     post: post,
     boardName: boardName,
     errors: errors
-  });
+
+  });}
 });
 
 // create
@@ -61,8 +68,11 @@ router.post('/:boardName', util.isLoggedin, function(req, res) {
 
   switch (boardName) {
     case 'notices':
+
       Notice.create(req.body, function(err, post) {
+
         createHelper(err, req, res);
+
       });
       break;
     case 'frees':
@@ -77,6 +87,7 @@ router.post('/:boardName', util.isLoggedin, function(req, res) {
       break;
     default:
       // console.log('No matching board');
+
   }
 });
 
@@ -137,7 +148,6 @@ router.get('/:boardName/:id', function(req, res) {
         likes: likes,
         liked: liked,
         views: views,
-        comments:comments
 
       });
     })
