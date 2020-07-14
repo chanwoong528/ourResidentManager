@@ -8,40 +8,183 @@ var Logger = function() {
   //  data[1][n] == (String) username, (String) msg, (Date) stamp
   // data[2..n] == (socket.id) socketId
 };
-Logger.prototype.log = new Array();
+Logger.prototype.logMap = {};
+
+Logger.prototype.obtainLog = function (chatId){
+  return Logger.prototype.logMap[chatId] === undefined ? -1 : Logger.prototype.logMap[chatId];
+}
+
+Logger.prototype.initLogMap = function(chatId) {
+  // 1. check if log for chatId already exists
+  var entry = Logger.prototype.obtainLog(chatId);
+  if (entry == -1){
+    Logger.prototype.logMap[chatId] = new Array();
+  }
+  // 1-1. if yes, check by key(i.e., logMap[chatId]) to access log
+  // 1-2. if no, create one with chatId as key, logMap[chatId]
+}
+
+Logger.prototype.addLogToChat = function(chatId, username, msg, date){
+  var log = {username:username, msg:msg, date:date};
+  Logger.prototype.checkLogMapFor(chatId);
+  Logger.prototype.logMap[chatId].push(log);
+  return log;
+}
+
+Logger.prototype.checkLogMapFor = function (chatId){
+  if (!Logger.prototype.logMap[chatId]){
+    Logger.prototype.logMap[chatId] = new Array();
+  }
+}
+
+/**
+ *
+ * from here on
+ *
+ * @deprecated
+ *
+ */
+
+Logger.prototype.logs = new Array();
+
 
 /**
  * @param id Chat model's _id in String, or socket.io's socket id
  * @returns A temporarily log entry for a chatroom saved in the server (not in DB).
  *          Will return -1 if there was no match, and there was no ID given.
  */
-Logger.prototype.getData = function(id) {
+Logger.prototype.getEntry = function(chatId) {
   // var id = (typeof id == 'string') ? chatId : socketId;
   // if (!id) return -1;
-  var data = Logger.prototype.log.find(e => e.includes(id));
-  return data === undefined ? -1 : data;
+  if (!Logger.prototype.logs[0]) return -1;
+  var entry = Logger.prototype.logs.find(e => e.chatId == chatId);
+  // console.log(' Logger getEntry = ' + entry);
+  // console.log('  ----- ' + entry.chatId);
+  // console.log('  ----- ' + entry.log);
+  // console.log('  ----- ' + entry.clients);
+  return entry === undefined ? -1 : entry;
+}
+Logger.prototype.getEntryBySocketId = function(socketId) {
+  var entry = Logger.prototype.logs.find(e => e.clients.includes(socketId));
+  return entry === undefined ? -1 : entry;
 }
 
-Logger.prototype.init = function(socketId, chatId) {
-  console.log('#### chatID #### \n' + chatId);
-  var data = Logger.prototype.loadDBLog(chatId);
-  console.log(' ######## DB Log ############ \n' + data);
-  if (data == 0 || data == -1) {
-    var set = [chatId, new Array(), socketId];
-    Logger.prototype.log.push(set);
-    return set[1];
-  } else {
-    if (!data.includes(socketId)) data.push(socketId);
-    return data[1];
+Logger.prototype.addLog = function(chatId, log) {
+  // data == {(String) chatId, (String) username, (String) msg, (Number) date}
+  // console.log(' Logger\\\'s addLog: ' + log);
+  // console.log('  ----- ' + chatId);
+  // console.log('  ----- ' + log.username);
+  // console.log('  ----- ' + log.msg);
+  // console.log('  ----- ' + log.date);
+  var entry = Logger.prototype.getEntry(chatId);
+  if (entry == -1) return -1;
+  var set = { "username": log.username, "msg": log.msg, "date": log.date };
+  entry.log.push(set);
+  return entry.log;
+}
+
+Logger.prototype.init = function(chatId, clients) {
+  // console.log(' #### chat init  : ' + chatId);
+  var entry = Logger.prototype.getEntry(chatId);
+  // console.log(' #### local log? : ' + entry);
+  // console.log('@@@@@@@@@@@ clients? ' + clients);
+  if (entry == 0 || entry == -1) { // Chat with chatId isn't tracked, creat one
+    var new_entry = { "chatId": chatId, "log": [], "clients": clients };
+    Logger.prototype.logs.push(new_entry);
+  } else { // else = if found
+    if (clients != []) {
+      clients.forEach((client, i) => {
+        if (!entry.clients.includes(client)) entry.clients.push(client);
+      });
+    }
+  }
+  // if (!entry.clients.includes(socketId)) entry.clients.push(socketId);
+
+  return entry;
+}
+
+Logger.prototype.updateClients = function(chatId, clients) {
+  var entry = Logger.prototype.getEntry(chatId);
+  if (clients != []) {
+    if (clients != []) {
+      clients.forEach((client, i) => {
+        entry.clients.push(client);
+      });
+    }
   }
 }
 
-Logger.prototype.loadDBLog = function (chatId){
+/**
+ * Find chatId w/ given socketId
+ */
+Logger.prototype.getChatId = function(socketId) {
+  var entry = Logger.prototype.getEntryBySocketId(socketId);
+  return entry.chatId;
+}
+
+Logger.prototype.getLog = function(chatId) {
+  var entry = Logger.prototype.getEntry(chatId);
+  return entry.log;
+}
+
+Logger.prototype.socketIdExpired = function(socketId) {
+  Logger.prototype.printConsoleLog(false, false);
+  var entry = Logger.prototype.getEntryBySocketId(socketId);
+  if (entry == -1) {
+    console.log(" @Logger: No such entry containing socket: " + socketId)
+    return -1;
+  }
+  var i = entry.clients.indexOf(socketId);
+  entry.clients.splice(i, 1);
+  return 1;
+}
+
+Logger.prototype.printConsoleLog = function(showLog, showClients) {
+  console.log('========= LOGGER LOG =========')
+  Logger.prototype.logs.forEach((entry, i) => {
+    console.log('-- chatId              : ' + entry.chatId);
+    if (showLog) {
+      entry.log.forEach((log, j) => {
+        console.log('-- log                 : [' + j + ']');
+        console.log('------ username        : ' + log.username);
+        console.log('------ msg             : ' + log.msg);
+        console.log('------ date            : ' + log.date);
+      });
+    } else {
+      console.log('-- # of log            : ' + entry.log.length);
+    }
+    if (showClients) {
+      entry.clients.forEach((client, j) => {
+        console.log('-- client [' + j + '] ' + client);
+      });
+    } else {
+      console.log('-- # of clients        : ' + entry.clients.length);
+    }
+
+
+  });
+
+}
+
+Logger.prototype.flush = function(chatId) {
+  var entry = Logger.prototype.getEntry(chatId);
+  console.log(' @on flush, entry.log: ' + entry.log);
+  var log = entry.log;
+  entry.log = new Array();
+  console.log(' @on flush, log: ' + log.length);
+
+  return log;
+}
+
+
+// NOT WORKING
+Logger.prototype.loadDBLog = function(chatId) {
   // var arr = Chat.aggregate([{$match:{_id:mongoose.Types.ObjectId(chatId)}},
   // {$project:{_id:0,log:{$slice:["$log",-100]}}},{$unwind:{path:"$log"}}]);
   // console.log('aggregation pipeline????');
   // console.log(arr);
-  Chat.findOneByChatIdString(chatId,function(err, chat){
+  console.log(' @loadDBLog');
+  Chat.findOneByChatIdString(chatId, function(err, chat) {
     if (err) {
       console.log(err);
       return -1;
@@ -49,69 +192,38 @@ Logger.prototype.loadDBLog = function (chatId){
     if (chat) {
       var arr = chat.getLog();
       console.log('chat log obtained: ' + arr);
+      return arr;
     }
+    return -1;
   });
   // return arr?arr:-1;
 }
 
-/**
- * @param id is either {String} chatId or {socket.id} socketId
- * @param {String} username User model's username
- * @param {String} msg sent message
- * @param {Date} stamp
- * @returns {Array} set, the log just saved to the log array
- */
-Logger.prototype.appendLog = function(id, username, msg, stamp) {
-  var data = Logger.prototype.getData(id);
-  var set = [username, msg, stamp];
-  data[1].push([username, msg, stamp]);
-  return set;
-}
-
-/**
-* Find chatId w/ given socketId
-*/
-Logger.prototype.getChatId = function(socketId) {
-  var data = Logger.prototype.getData(socketId);
-  return data[0];
-}
-
-Logger.prototype.getLogArray = function(chatId) {
-  var data = Logger.prototype.getData(chatId);
-  return data[1];
-}
-
-Logger.prototype.flush = function(data) {
-  var ret = data[1];
-  data[1] = new Array();
-  var chatId = data[0];
-  Chat.findOneByChatIdString(chatId, function(err, chat){
-    chat.addAllToLog(ret);
+Logger.prototype.sendToDB = function(chatId, log) {
+  Chat.findOneByChatIdString(chatId, function(err, chat) {
+    // log [{"username":username, "msg":msg, "date":date}]
+    // each as String String Number
+    if (err) console.log(err);
+    if (chat) {
+      console.log('FOUND MATCHING CHAT IN DB');
+      chat.addAllToLog(log);
+      chat.save(function(err) {
+        if (err) console.log(err);
+      });
+    }
   });
-  return ret;
-}
-
-Logger.prototype.socketIdExpired = function(socketId) {
-  var data = Logger.prototype.getData(socketId);
-  if (data == -1) {
-    console.log(" @Logger: No such data containing socket: " + socketId)
-    return -1;
-  }
-  var i = data.indexOf(socketId);
-  data.splice(i, 1);
-  return Logger.prototype.flush(data);
 }
 
 Logger.prototype.removeChatEnrtybyChatId = function(chatId) {
   // this should be triggered when both users exits chatroom
   // please check above status before using this function
-  var data = Logger.prototype.getData(chatId);
-  if (data == -1) {
-    console.log(" @Logger: No chat entry for: " + chatId);
+  var entry = Logger.prototype.getEntry(chatId);
+  if (entry == -1) {
+    console.log(" @Logger: No chat entry for: " + entry);
     return -1;
   }
-  var i = Logger.prototype.log.indexOf(data);
-  Logger.prototype.log.splice(i, 1);
+  var i = Logger.prototype.logs.indexOf(entry);
+  Logger.prototype.logs.splice(i, 1);
   return 1;
 }
 

@@ -3,12 +3,11 @@
 <script>
 $(function(){
   var socket = io();
-  var chatId = "<%= chatId %>";
-  var log = `<%= log %>`;
+  var chatId = "<%= chatId?chatId:'' %>";
   var username = "<%= currentUser.username %>";
   socket.emit('init', chatId);
   console.log('client socket: ' + socket);
-  $('#chatLog').append(log);
+  // $('#chatLog').append(log);
   $('#chatLog').scrollTop($('#chatLog')[0].scrollHeight);
   $('#chat').on('submit', function(e) {
     if ($('#message').val() !== '' && $('#message').val() !== null){
@@ -22,8 +21,8 @@ $(function(){
     $('#chatLog').append(msg + '\n');
     $('#chatLog').scrollTop($('#chatLog')[0].scrollHeight);
   });
-  socket.on('init log', function(log) {
-    $('#chatLog').append(msg + '\n');
+  socket.on('system message', function(msg) {
+    $('#chatLog').append(log + '\n');
     $('#chatLog').scrollTop($('#chatLog')[0].scrollHeight);
   });
 });

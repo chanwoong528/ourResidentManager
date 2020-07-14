@@ -5,39 +5,119 @@ var Logger = require('./Logger');
 var logger = new Logger();
 var socketio = require('socket.io');
 
+var usernames = {}; // key = username, value = {key = socket.id, value = chatId}
+var chats = {}; // key = chatId, value = [username Array]
+
+function check_key(v, m) {
+  var val = '';
+  for (var key in m) {
+    if (m[key] == v)
+      val = key;
+  }
+  return val;
+}
+
 module.exports.listen = function(server) {
   io = socketio.listen(server);
 
   io.on('connection', function(socket) {
-    socket.on('init', function(chatId) {
+    socket.on('chat init', function(chatId, username) {
+      if (!chatId || !username) {
+        socket.emit('redirect');
+      }
+      addSocketInfo(socket, chatId, username);
+
       socket.join(chatId);
-      var log = logger.init(socket.id, chatId);
-      // console.log('===== ' + socket.id + ' connected to: ', chatId);
-      var msg = 'SYSTEM : You are now connected to chat!';
-      var bmsg = 'SYSTEM : Your opponent is connected to chat!';
-      // socket.emit('clear');
-      // socket.emit('receive message', log);
-      socket.emit('init log', log);
-      socket.emit('receive message', msg);
-      socket.broadcast.to(chatId).emit('receive message', bmsg);
+      logger.initLogMap(chatId);
+
+      var log = logger.obtainLog(chatId);
+      if (log != null && log !== undefined) {
+        log.forEach((item, i) => {
+          socket.emit('receive message', item.username, item.msg, getDateString(item.date));
+        });
+      }
+      // init ends here
     });
 
-    socket.on('send message', function(chatId, username, msg, date) {
-      // var stamp = Date.now();
-      // console.log(msg);
-      io.in(chatId).emit('receive message', username, msg, getDateString(date));
+    socket.on('notification init', function(username) {
+      var roomId = 'notification';
+      addSocketInfo(socket,roomId,username);
+      socket.join(roomId);
+    });
 
-      logger.appendLog(chatId, username, text, date);
-      console.log(logger.getLogArray(chatId));
+    socket.on('send notification', function(username){
+
+    });
+
+    socket.on('request chat list', function(username){
+      // search DB Chat collection for socket's username
+      if (username){
+        Chat.findAllByUsername(username, function (err, chats){
+          if (err) {
+            console.log (' ERR @ request chat list (1)');
+            console.log(err);
+          }
+          if (chats){
+            console.log(' DB CHATS : \n' + chats);
+            // socket.emit('receive chat list', chats);
+            chats.forEach((chat, i) => {
+              var data = new Array();
+              var chatId = chat._id.toString();
+              data.push(chatId);
+              chat.users.forEach((user, i) => {
+                if (user != username){
+                  data.push(user);
+                }
+              });
+              var msg = "This is a temporary message.";
+              var stamp = "Month 00";
+              data.push (msg);
+              data.push (stamp);
+              console.log ('data : ' + data);
+              var temp = {name:"you", king:"queen"};
+              socket.emit('receive chat list', {data, temp});
+            });
+
+
+          }
+        });
+
+
+      }
+
+    });
+
+    socket.on('send message', function(data) {
+      // data == {(String) chatId, (String) username, (String) msg, (Number) date}
+      // console.log('======send message=======');
+      // console.log('    data          : ' + data);
+      // console.log('     -- room      : ' + data.chatId);
+      // console.log('     -- username  : ' + data.username);
+      // console.log('     -- msg       : ' + data.msg);
+      // console.log('     -- date      : ' + data.date);
+      printData(data);
+      data.date = Date.now();
+      // convert date number into time stamp
+      var stamp = getDateString(new Date(data.date));
+      io.in(data.chatId).emit('receive message', data.username, data.msg, stamp);
+
+      var log = { "username": data.username, "msg": data.msg, "date": data.date };
+      // logger.addLog(data.chatId, log);
+      // console.log(logger.getLog(data.chatId));
+
+      var retLog = logger.addLogToChat(data.chatId, data.username, data.msg, data.date);
+      console.log(retLog.toString());
+      console.log('======send message==END==');
     });
 
     socket.on('disconnect', function() {
-      // io.sockets.client(room); <<< get array of sockets in room
-      console.log('a user disconnected: ', socket.id);
-      var chatId = logger.getChatId(socket.id);
-      io.in(chatId).emit('receive message', 'SYSTEM: A user disconnected.');
-      var localLog = logger.socketIdExpired(socket.id);
-      console.log(' %%%% returned local log: ' + localLog);
+      removeSocketInfo(socket);
+      console.log('[' + socket.username + '] disconnected.');
+
+      // var chatId = logger.getChatId(socket.id);
+      // io.in(chatId).emit('system message', 'SYSTEM: A user disconnected.');
+      // var localLog = logger.socketIdExpired(socket.id);
+      // console.log(' log socket EXPIRED, returned local log: ' + localLog);
     });
 
     socket.on('end chat', function(chatId) {
@@ -46,9 +126,65 @@ module.exports.listen = function(server) {
     });
   });
 
-  function getDateString(date) {
-    // var date = new Date(Date.now());
-    console.log(date.toISOString());
+  function addSocketInfo(socket, chatId, username){
+    socket.username = username;
+    var item = {};
+    item[socket.id] = chatId;
+    usernames[username] = item;
+    if (!chats[chatId]) {
+      chats[chatId] = new Array();
+    }
+    if (!chats[chatId].includes(username)){
+      chats[chatId].push(username);
+    }
+  }
+
+  function removeSocketInfo(socket){
+    // remove entry from usernames
+    var username = socket.username;
+    var sid = socket.id;
+    if (username){
+      var chatId = usernames[username][sid];
+      delete usernames[username];
+    }
+  }
+
+  function checkNotified(){
+
+  }
+
+  function printData(data, spaces){
+    var allowed = (typeof spaces == typeof 15) && (spaces <= 20);
+    var s = allowed?spaces:15;
+    if(data){
+      console.log('    data           : ' + data);
+      for (var key in data){
+        var str = '-- ' + key;
+        var i;
+        for (i = 0; i < s-str.length; i++){
+          str += ' ';
+        }
+        str += ': ' + data[key];
+        if (typeof data[key] != 'string' && typeof data[key] != 'number'){
+          for (var k in data[key]){
+            var str2 = '---- ' + k;
+            var j;
+            for (j = 0; j < s-str2.length; j++){
+              str2 += ' ';
+            }
+            str2 += ': ' + data[key][k];
+            console.log(str2);
+          }
+        } else {
+          console.log(str);
+        }
+      }
+    }
+  }
+
+  function getDateString(dateNum) {
+    var date = new Date(dateNum);
+    console.log(date.toString());
     var y = date.getFullYear();
     var m = addZero(date.getMonth() + 1);
     var d = addZero(date.getDate());

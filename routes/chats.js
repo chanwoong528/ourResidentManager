@@ -6,12 +6,25 @@ var User = require('../models/User');
 
 // Index
 router.get('/', util.isLoggedin, function(req, res){
-  res.render('dm/index',{
-
+  user1 = req.user.username;
+  Chat.findAllByUsername(user1, function(err, chats){
+    if (err){
+      console.log(' ERR @ routes/chats.js');
+      console.log(err);
+      return res.redirect('/');
+    }
+    if (chats){
+      // console.log('chats?????');
+      // console.log(chats);
+      res.render('dm/index',{
+        chatId:'',
+      });
+    }
   });
+
 });
 
-router.get('/:username/ask', util.isLoggedin, function(req, res) {
+router.get('/:username', util.isLoggedin, function(req, res) {
   var user1 = req.user.username;
   var user2 = req.params.username;
   if (user1 == user2) return res.redirect('/');
@@ -20,21 +33,23 @@ router.get('/:username/ask', util.isLoggedin, function(req, res) {
     if (!user){
       // invalid username
       console.log(' @routes/chats.js // invalid username');
-      return res.redirect('/dm');
+      return res.redirect('/');
     }
   });
   Chat.findOneByUsernames(user1,user2,function(err,chat){
     if (err) return console.log(err);
     console.log('findOne chat._id.toString() : ' + chat._id.toString());
-    res.render('dm/chat',{
+    res.render('dm/index',{
       chatId:chat._id.toString(),
       users:chat.users
     });
   });
-}
+
+
+});
 
 // Chat
-router.get('/:username', util.isLoggedin, function(req, res) {
+router.get('/:username/temp', util.isLoggedin, function(req, res) {
   var user1 = req.user.username;
   var user2 = req.params.username;
   if (user1 == user2) return res.redirect('/dm');
