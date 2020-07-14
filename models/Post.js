@@ -41,6 +41,9 @@ var Post = mongoose.model('post', new Schema({
     type: Date,
     default: Date.now
   },
+  attachment:{
+    type:mongoose.Schema.Types.ObjectId, ref:'file'
+  },
   updatedAt: {
     type: Date
   },
