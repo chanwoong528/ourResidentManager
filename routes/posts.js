@@ -6,7 +6,7 @@ var Free = require('../models/Free');
 var Trade = require('../models/Trade');
 var Comment = require('../models/Comment');
 var util = require('../util');
-
+var User = require('../models/User');
 
 
 
@@ -48,12 +48,18 @@ router.get('/:boardName/new', util.isLoggedin, function(req, res) {
   var postType = boardName.slice(0, -1);
   var post = req.flash(postType)[0] || {};
   var errors = req.flash('errors')[0] || {};
+  if(boardName =='notices'&& !req.user.isAdmin)
+  {
+    return util.noPermission(req, res);
 
+  }
+  else{
   res.render('boards/' + boardName + '/new', {
     post: post,
     boardName: boardName,
     errors: errors
-  });
+
+  });}
 });
 
 // create
@@ -64,8 +70,11 @@ router.post('/:boardName', util.isLoggedin, function(req, res) {
 
   switch (boardName) {
     case 'notices':
+
       Notice.create(req.body, function(err, post) {
+
         createHelper(err, req, res);
+
       });
       break;
     case 'frees':
@@ -80,6 +89,7 @@ router.post('/:boardName', util.isLoggedin, function(req, res) {
       break;
     default:
       // console.log('No matching board');
+
   }
 });
 
@@ -88,6 +98,8 @@ router.get('/:boardName/:id', function(req, res) {
   var boardName = req.params.boardName;
   var postType = boardName.slice(0, -1);
   var likes = Post.likes;
+  var views = Post.views;
+  var comments = Post.comments;
   var commentForm = req.flash('commentForm')[0] || {
     _id: null,
     form: {}
@@ -114,6 +126,9 @@ router.get('/:boardName/:id', function(req, res) {
     ])
     .then(([post, comments]) => {
       var liked = false;
+
+        post.views++; // 2
+        post.save();
       // console.log('req.user = ' + req.user);
       if (req.user) {
         var arr = post.likedPerson;
@@ -133,7 +148,9 @@ router.get('/:boardName/:id', function(req, res) {
         commentForm: commentForm,
         commentError: commentError,
         likes: likes,
-        liked: liked
+        liked: liked,
+        views: views,
+
       });
     })
     .catch((err) => {

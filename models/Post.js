@@ -29,6 +29,14 @@ var Post = mongoose.model('post', new Schema({
   {
     type: Number ,default: 0
   },
+  views:
+  {
+    type: Number ,default: 0
+  },
+  comments:
+  {
+    type: Number ,default: 0
+  },
   createdAt: {
     type: Date,
     default: Date.now

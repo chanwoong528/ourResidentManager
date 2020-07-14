@@ -125,7 +125,7 @@ function parseError(errors){
     }
   }
   else if(errors.code == '11000' && errors.errmsg.indexOf('username') > 0) {
-    parsed.username = { message:'This username already exists!' };
+    parsed.username = { message:'아이디가 중복됩니다' };
   }
   else {
     parsed.unhandled = JSON.stringify(errors);

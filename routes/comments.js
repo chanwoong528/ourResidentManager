@@ -22,7 +22,7 @@ router.post('/', util.isLoggedin, checkPostId, function(req, res) {
       });
     }
     else{
-
+      //counting comment
       post.comments++;
       post.save();
 
@@ -69,7 +69,8 @@ router.delete('/:id', util.isLoggedin, checkPermission, checkPostId, function(re
 
 
     comment.isDeleted = true;
-    post.countComment--;
+    post.comments--;
+    post.save();
     comment.save(function(err, comment) {
       if (err) return res.json(err);
 

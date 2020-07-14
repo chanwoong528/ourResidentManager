@@ -25,19 +25,23 @@ var userSchema = mongoose.Schema({
   },
   addr:{
     type:String,
-    require:[true, 'You need to enter Detailed Address'],
+    //require:[true, 'You need to enter Detailed Address'],
 
   },
   email:{
     type:String,
     match:[/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,'Should be a vaild email address!'],
     unique: true,
-    trim:true
+    trim:true,
+    requried: true
+  },
+  isAdmin:{
+    type:Boolean, default:false
   },
   email_verified :{
-      type: Boolean, required:true, default: false
+      type: Boolean, default: false
     },
-    key_for_verify :{ type: String, required:true },
+    key_for_verify :{ type: String},
   activeChats:[{
     type:mongoose.Schema.Types.ObjectId,
     ref:'chat'
