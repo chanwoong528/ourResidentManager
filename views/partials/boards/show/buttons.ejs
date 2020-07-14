@@ -18,7 +18,7 @@
     </a>
     <% if(isAuthenticated && boardName === 'trades'){ %>
       <% var chat_disabled = currentUser.id == post.author.id?'disabled':'' %>
-      <a class="btn btn-primary <%= chat_disabled %>" href="/dm/<%= post.author.username %>/ask">
+      <a class="btn btn-primary <%= chat_disabled %>" href="/dm/<%= post.author.username %>">
         <i class='far fa-comment-dots' style='font-size:24px'></i>
       </a>
     <% } %>

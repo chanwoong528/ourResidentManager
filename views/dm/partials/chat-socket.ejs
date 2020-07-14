@@ -2,6 +2,7 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
   $(".msg_history").hide();
+  $(".input_msg_write").hide();
   var socket = io();
   var chatId = "<%= chatId %>"
     ? "<%= chatId %>"
@@ -18,6 +19,7 @@
 
   function loadChatBySelection(elem) {
     $("#temp").hide();
+    $(".input_msg_write").show();
     $(".msg_history").show(1000);
     $(".msg_history").children().remove();
     var cid = $(elem).attr("data-chatId");
