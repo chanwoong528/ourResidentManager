@@ -1,0 +1,29 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+$(function(){
+  var socket = io();
+  var chatId = "<%= chatId?chatId:'' %>";
+  var username = "<%= currentUser.username %>";
+  socket.emit('init', chatId);
+  console.log('client socket: ' + socket);
+  // $('#chatLog').append(log);
+  $('#chatLog').scrollTop($('#chatLog')[0].scrollHeight);
+  $('#chat').on('submit', function(e) {
+    if ($('#message').val() !== '' && $('#message').val() !== null){
+      socket.emit('send message', chatId, username, $('#message').val(), new Date(Date.now()));
+    }
+    $('#message').val('');
+    $('#message').focus();
+    e.preventDefault();
+  });
+  socket.on('receive message', function(username, msg, stamp) {
+    $('#chatLog').append(msg + '\n');
+    $('#chatLog').scrollTop($('#chatLog')[0].scrollHeight);
+  });
+  socket.on('system message', function(msg) {
+    $('#chatLog').append(log + '\n');
+    $('#chatLog').scrollTop($('#chatLog')[0].scrollHeight);
+  });
+});
+</script>

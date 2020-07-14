@@ -1,0 +1,150 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  $(".msg_history").hide();
+  $(".input_msg_write").hide();
+  var socket = io();
+  var chatId = "<%= chatId %>"
+    ? "<%= chatId %>"
+    : "notification";
+  var username = "<%= currentUser.username %>";
+  loadChatDefault();
+  console.log("chatId = " + chatId);
+  console.log("username = " + username);
+
+  $(function () {
+    socket.emit('request chat list', username);
+
+  });
+
+  function loadChatBySelection(elem) {
+    $("#temp").hide();
+    $(".input_msg_write").show();
+    $(".msg_history").show(1000);
+    $(".msg_history").children().remove();
+    var cid = $(elem).attr("data-chatId");
+    chatId = cid;
+    var target_username = $(elem).attr("id");
+    socket.emit('chat init', cid, username);
+  }
+
+  function loadChatDefault() {
+    if (chatId != 'notification') {
+      $("#temp").hide();
+      $(".msg_history").show(1000);
+      $(".msg_history").children().remove();
+    }
+    socket.emit('chat init', chatId, username);
+  }
+
+  socket.on('redirect', function(){
+    socket.emit('disconnect');
+    window.location.replace("../");
+  });
+
+  socket.on('receive chat list', ({data, temp}) => {
+    console.log(data);
+    console.log(temp);
+    loadChatList(data[0], data[1], data[2], data[3], data[0] == "<%= chatId %>");
+  });
+
+  $(document).ready(function () {
+    function msgSendBtnPressed(event) {
+      if ($('.write_msg').val() !== '' && $('.write_msg').val() !== null) {
+        socket.emit('send message', {
+          'chatId': chatId,
+          'username': username,
+          'msg': $('.write_msg').val(),
+          'date': null
+        });
+      }
+      $('.write_msg').val('');
+      $('.write_msg').focus();
+      event.preventDefault();
+    }
+
+    $('.msg_send_btn').on('click', msgSendBtnPressed);
+
+    socket.on('receive message', function (name, msg, stamp) {
+      if (name == username) {
+        sendMsg(msg, stamp)
+      } else {
+        receiveMsg(msg, stamp);
+      }
+    });
+    socket.on('system message', function (msg) {});
+  });
+
+  function loadChatList(chatId, username, msg, date, active) {
+    var str_row;
+    str_row = `<div id="`;
+    str_row += username;
+    str_row += `" class="chat_list`;
+    str_row += active
+      ? ` active_chat`
+      : ``;
+    str_row += `" data-chatId="`;
+    str_row += chatId;
+    str_row += `" style="cursor: pointer;" onclick="loadChatBySelection(this)">`;
+    str_row += `<div class="chat_people">`;
+    str_row += `<div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>`;
+    str_row += `<div class="chat_ib"><h5>`;
+    str_row += username;
+    // is a string
+    str_row += `<span class="chat_date">`;
+    str_row += date;
+    // date would be something like Dec 23
+    str_row += `</span></h5><p>`;
+    str_row += msg;
+    str_row += `</p></div></div></div>`;
+    $(".inbox_chat").append(str_row);
+
+  }
+
+  function toggleActive(elem) {
+    // $(".chat_list active_chat").toggleClass('chat_list');
+    $(elem).toggleClass('chat_list');
+    $(elem).toggleClass('chat_list active_chat');
+
+  }
+
+  function getDivId(div) {
+    username = div.id;
+  }
+
+  function appendMessage(logEntry) {
+
+    if (username == currentUser.username) {}
+  }
+
+  function sendMsg(msg, stamp) {
+    var str_row;
+    str_row = `<div class="outgoing_msg">`;
+    str_row += `<div class="sent_msg">`;
+    str_row += `<p>`;
+    str_row += msg;
+    // is a string
+    str_row += `</p>`;
+    str_row += `<span class="time_date">`;
+    str_row += stamp;
+    // stamp would be something like 11:01 AM | June 9
+    str_row += `</span></div></div>`;
+    $(".msg_history").append(str_row);
+    $('.msg_history').scrollTop($('.msg_history')[0].scrollHeight);
+  }
+
+  function receiveMsg(msg, stamp) {
+    var str_row;
+    str_row = `<div class="incoming_msg">`;
+    str_row += `<div class="received_msg">`;
+    str_row += `<div class="received_withd_msg">`;
+    str_row += `<p>`;
+    str_row += msg;
+    str_row += `</p>`;
+    str_row += `<span class="time_date">`;
+    str_row += stamp;
+    str_row += `</span></div></div></div>`;
+    $(".msg_history").append(str_row);
+    $('.msg_history').scrollTop($('.msg_history')[0].scrollHeight);
+  }
+</script>

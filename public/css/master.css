@@ -15,7 +15,7 @@ body {
 
 .navbar-brand
 {
-font-size: 2.8em;
+  font-size: 1.4em;
 
 }
 
@@ -26,7 +26,7 @@ div.about {
    padding: 12px;
    word-break: break-all;
 
-   
+
     }
 
 
@@ -109,14 +109,13 @@ div.about {
 }
 
 .button__badge {
-  background-color: #fa3e3e;
-  border-radius: 2px;
-  color: white;
-
-  padding: 1px 3px;
-  font-size: 10px;
+  height: 10px;
+  width: 10px;
+  background-color: #FF2424;
+  border-radius: 50%;
+  display: inline-block;
 
   position: relative; /* Position the badge within the relatively positioned button */
-  top: 0;
-  right: 0;
+  top: 3px;
+  right: 15px;
 }

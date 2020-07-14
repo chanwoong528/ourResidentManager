@@ -1,10 +1,7 @@
 var mongoose = require('mongoose');
 var bcrypt = require('bcryptjs'); // 1
+
 // schema
-
-
-
-
 var userSchema = mongoose.Schema({
   username:{
     type:String,
@@ -40,8 +37,8 @@ var userSchema = mongoose.Schema({
   },
   email_verified :{
       type: Boolean, default: false
-    },
-    key_for_verify :{ type: String},
+  },
+  key_for_verify :{ type: String},
   activeChats:[{
     type:mongoose.Schema.Types.ObjectId,
     ref:'chat'
@@ -50,7 +47,47 @@ var userSchema = mongoose.Schema({
   toObject:{virtuals:true}
 });
 
+/**
+ * Converts given chatId string into mongoose.Types.ObjectId() and add it to
+ *  the user's activeChats array (if it doesn't already have the same one).
+ *
+ * @param {User} user User document (i.e., userSchema) of a user
+ *                  MUST BE VERIFIED BEFOREHAND, because this function won't type check.
+ * @param {string} chatId string version of a chatId to be added
+ */
+userSchema.methods.addChat = function (user,chatId){
+  var cid = mongoose.Types.ObjectId(chatId);
+  if (!user.activeChats.includes(cid)){
+    user.activeChats.push(cid);
+    user.save(function(err){
+      if (err) console.log(err);
+    });
+    return 1; // operation successful
+  }
+  return -1; // operation unsuccessful
+}
 
+/**
+ * @param {User} user User document (i.e., userSchema) of a user
+ *                  MUST BE VERIFIED BEFOREHAND, because this function won't type check.
+ * @param {string} chatId string version of a chatId to be removed from user.activeChats
+ */
+userSchema.methods.removeChat = function(user,chatId){
+  var cid = mongoose.Types.ObjectId(chatId);
+  if (user.activeChats.includes(cid)){
+    var i = user.activeChats.indexOf(cid);
+    user.activeChats.splice(i,1);
+    user.save(function(err){
+      if (err) console.log(err);
+    });
+    return 1; // operation successful
+  }
+  return -1; // operation unsuccessful
+}
+
+userSchema.statics.findOneByUsername = function(username, callback){
+  return this.findOne({username:username}, callback);
+};
 
 // virtuals
 userSchema.virtual('passwordConfirmation')

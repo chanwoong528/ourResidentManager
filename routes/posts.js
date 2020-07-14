@@ -8,8 +8,6 @@ var Comment = require('../models/Comment');
 var util = require('../util');
 var User = require('../models/User');
 
-
-
 // Index
 router.get('/:boardName', async function(req, res) {
   var boardName = req.params.boardName;

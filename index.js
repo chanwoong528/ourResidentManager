@@ -15,9 +15,7 @@ var app = express();
 
 // Socket server setting
 var server = require('http').createServer(app);
-var io = require('socket.io').listen(server);
-
-
+var io = require('./libs/socket-listener').listen(server);
 
 var dbUrl = 'mongodb+srv://moon528:ms5028@cluster0-vltfk.mongodb.net/TownBoard?retryWrites=true&w=majority';
 
@@ -52,8 +50,11 @@ app.use(passport.session());
 
 // Custom Middlewares // 3
 app.use(function(req,res,next){
+  console.log('-- REQUEST REQUEST REQUEST REQUEST REQUEST --');
   res.locals.isAuthenticated = req.isAuthenticated();
   res.locals.currentUser = req.user;
+  res.locals.chatId = '';
+  res.locals.opponent = req.opponent;
   next();
 });
 
@@ -63,82 +64,6 @@ app.use('/users', require('./routes/users'));
 app.use('/dm', require('./routes/chats'));
 app.use('/boards', util.getPostQueryString, require('./routes/posts'));
 app.use('/comments', util.getPostQueryString, require('./routes/comments'));
-
-// Chat server
-var Chat = require('./models/Chat');
-var User = require('./models/User');
-var Logger = require('./Logger');
-var logger = new Logger();
-
-io.on('connection', function(socket) {
-  socket.on('init', function(chatId){
-    socket.join(chatId);
-    logger.init(socket.id, chatId);
-    // console.log('===== ' + socket.id + ' connected to: ', chatId);
-    var msg = 'SYSTEM : You are now connected to chat!';
-    var bmsg = 'SYSTEM : Your opponent is connected to chat!';
-    // socket.emit('clear');
-    // socket.emit('receive message', log);
-    socket.emit('receive message', msg);
-    socket.broadcast.to(chatId).emit('receive message', bmsg);
-  });
-
-  socket.on('send message', function(username, text, chatId){
-    var time = getDateNow();
-    var msg = '[' + username + '] ' + text + ' --' + time;
-    // console.log(msg);
-    io.in(chatId).emit('receive message', msg);
-
-    // Add message to db log
-    var chat_id = mongoose.Types.ObjectId(chatId);
-    Chat.findOne({_id:chat_id}, function(err,chat){
-      if (err) console.log(' ?????? what??? \n' + err);
-      if (chat){
-        chat.log.push({value:msg});
-        chat.save(function(err){
-          if (err) console.log(' could not save message to DB: ' + err);
-        });
-      }
-    });
-
-    // will probably have to make a function w/ prototype
-    //  containing an array that saves log strings of every chat room.
-
-    logger.appendLog(chatId, msg);
-    console.log(logger.getLog(chatId));
-  });
-
-  socket.on('disconnect', function(){
-    // io.sockets.client(room); <<< get array of sockets in room
-    console.log('a user disconnected: ', socket.id);
-    var chatId = logger.getChatId(socket.id);
-    console.log(' chatId: ' + chatId);
-    io.in(chatId).emit('receive message', 'SYSTEM: A user disconnected.');
-  });
-
-  socket.on('end chat', function(chatId){
-    console.log(' flushing ', chatId);
-    // close room, flush logger's log, and send it to DB.
-  });
-});
-
-function getDateNow(){
-  var date = new Date(Date.now());
-  console.log(date.toISOString());
-  var y = date.getFullYear();
-  var m = addZero(date.getMonth()+1);
-  var d = addZero(date.getDate());
-  var hh = addZero(date.getHours());
-  var mm = addZero(date.getMinutes());
-  return y + '-' + m + '-' + d + " " + hh + ':' + mm;
-}
-
-function addZero(i) {
-  if (i < 10) {
-    i = "0" + i;
-  }
-  return i;
-}
 
 // Port setting
 var port = process.env.PORT || 3000;
