@@ -9,13 +9,23 @@
       <% if(post.attachment) { %>
               <div class="ml-2">
      <!-- 1 --> <small>📁 Attachment: <a href="/files/<%= post.attachment.serverFileName %>/<%= post.attachment.originalFileName %>"><%= post.attachment.originalFileName %></a> (<%= util.bytesToSize(post.attachment.size) %>)</small>
+     <br>
+     <img src = "/files/<%= post.attachment.serverFileName %>/<%= post.attachment.originalFileName %>">
+
               </div>
             <% } %>
              </div>
 
 
     <div class="col-md-7 col-lg-8 col-xl-9 order-sm-2 order-md-1">
-      <div class="post-body p-2"><%= post.body %></div>
+      <div class="post-body p-2"><%= post.body %>
+
+
+
+
+
+
+      </div>
     </div>
 
 
