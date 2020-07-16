@@ -8,6 +8,14 @@ var Comment = require('../models/Comment');
 var util = require('../util');
 var User = require('../models/User');
 
+//file upload
+var multer = require('multer'); // 1
+var upload = multer({ dest: 'uploadedFiles/' }); // 2
+var File = require('../models/File'); // 3
+
+
+
+
 // Index
 router.get('/:boardName', async function(req, res) {
   var boardName = req.params.boardName;
@@ -61,9 +69,13 @@ router.get('/:boardName/new', util.isLoggedin, function(req, res) {
 });
 
 // create
-router.post('/:boardName', util.isLoggedin, function(req, res) {
+router.post('/:boardName', util.isLoggedin, upload.single('attachment'), async function(req, res) {
   var boardName = req.params.boardName;
   var postType = boardName.slice(0, -1);
+  var attachment = req.file?await File.createNewInstance(req.file,req.user._id):undefined;
+  req.body.attachment = attachment;
+
+
   req.body.author = req.user._id;
 
   switch (boardName) {
@@ -81,14 +93,28 @@ router.post('/:boardName', util.isLoggedin, function(req, res) {
       });
       break;
     case 'trades':
+
+
       Trade.create(req.body, function(err, post) {
-        createHelper(err, req, res);
+      console.log('123');
+      createHelper(err, req, res);
+
+      console.log('before file getin');
+
       });
       break;
-    default:
-      // console.log('No matching board');
 
+    default:
   }
+  if(attachment){                 // 4-4
+    attachment.postId = post._id; // 4-4
+    attachment.save();
+            // 4-4
+    }
+
+
+
+
 });
 
 // show
@@ -114,7 +140,7 @@ router.get('/:boardName/:id', function(req, res) {
       }).populate({
         path: 'author',
         select: ['name','username']
-      }),
+      }).populate({path:'attachment',match:{isDeleted:false}}),
       Comment.find({
         post: req.params.id
       }).sort('createdAt').populate({

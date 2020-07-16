@@ -21,6 +21,15 @@ body {
   font-family: 'Nanum Pen Script', cursive;
 }
 
+img
+{
+  max-width: 40%;
+   height: auto;
+
+
+}
+
+
 div.about {
   border-style: solid;
   width : 500px;

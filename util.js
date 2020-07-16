@@ -18,6 +18,7 @@ util.parseError = function(errors) {
   return parsed;
 };
 
+
 util.isLoggedin = function(req, res, next){
   if(req.isAuthenticated()){
     next();
@@ -29,7 +30,7 @@ util.isLoggedin = function(req, res, next){
 };
 
 util.noPermission = function(req, res){
-  req.flash('errors', {login:"You don't have permission"});
+  req.flash('errors', {login:"권한이 없습니다 관리자 아이디로 로그인 해주세요"});
   req.logout();
   res.redirect('/login');
 };
@@ -49,6 +50,15 @@ util.getPostQueryString = function(req, res, next){
     return queryString;
   }
   next();
-}
+};
+
+
+util.bytesToSize = function(bytes) { // 1
+   var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+   if (bytes == 0) return '0 Byte';
+   var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+   return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+};
+
 
 module.exports = util;

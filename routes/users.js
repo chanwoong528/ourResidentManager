@@ -2,11 +2,7 @@ var express = require('express');
 var router = express.Router();
 var User = require('../models/User');
 var util = require('../util'); // 1
-//email
-var nodemailer = require('nodemailer');
-var smtpTransporter=require('nodemailer-smtp-transport');
 
-var crypto = require('crypto');
 
 
 // Index
@@ -27,25 +23,20 @@ router.get('/new', function(req, res){
 });
 
 
-var handle_email = require('../models/handle_email');
-//email module
+
 // create
 router.post('/', function(req, res){
 
-  var key_one=crypto.randomBytes(256).toString('hex').substr(100, 5);
-  var key_two=crypto.randomBytes(256).toString('base64').substr(50, 5);
-  var key_for_verify=key_one+key_two;
+
 
   User.create(req.body, function(err, user){
     if(err){
       req.flash('user', req.body);
       req.flash('errors', util.parseError(err));
-      handle_email.EmailVerification('some Email', key_for_verify);
-      console.log('1111:', parseError(err));
+
+
       return res.redirect('/users/new');
     }
-  User.findOneAndUpdate(req.param.id, key_for_verify)
-  .exec();
 
     res.redirect('/users');
   });

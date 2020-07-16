@@ -56,12 +56,27 @@ app.use(function(req,res,next){
   next();
 });
 
+//custom Middleware fs
+app.use(function(req,res,next){
+  res.locals.isAuthenticated = req.isAuthenticated();
+  res.locals.currentUser = req.user;
+  res.locals.util = util; // 1
+  next();
+});
+
+
+
+
 // Routes
 app.use('/', require('./routes/home'));
 app.use('/users', require('./routes/users'));
 app.use('/dm', require('./routes/chats'));
 app.use('/boards', util.getPostQueryString, require('./routes/posts'));
 app.use('/comments', util.getPostQueryString, require('./routes/comments'));
+
+app.use('/files', require('./routes/files'));
+
+
 
 // Port setting
 var port = process.env.PORT || 3000;
