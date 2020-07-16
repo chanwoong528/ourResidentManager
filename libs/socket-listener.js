@@ -5,8 +5,9 @@ var Logger = require('./Logger');
 var logger = new Logger();
 var socketio = require('socket.io');
 
-var usernames = {}; // key = username, value = {key = socket.id, value = chatId}
-var chats = {}; // key = chatId, value = [username Array]
+var online_users = {}; // {username:{socket.id: chatId}}
+var chats = {}; // {chatId:[username]}
+var notify = {}; // {username:boolean}
 
 function check_key(v, m) {
   var val = '';
@@ -17,47 +18,69 @@ function check_key(v, m) {
   return val;
 }
 
+function initChatList(){
+  var proceed = true;
+  for (var chat in chats){
+    proceed = false;
+    break;
+  }
+  if (proceed){
+    console.log(' @ socket-listener, initChatList called');
+
+    logger.getDBChatList(function (err, data){
+      console.log('data == == == \n' + data);
+      // if (chats != -1){
+        data.forEach((chat, i) => {
+          var chatId = chat._id.toString();
+          var users = new Array();
+          chat.users.forEach((user, i) => {
+            users.push(user);
+          });
+          chats[chatId] = users;
+        });
+      // }
+      console.log(chats);
+    });
+
+  }
+}
+
+initChatList();
+
 module.exports.listen = function(server) {
   io = socketio.listen(server);
 
   io.on('connection', function(socket) {
-    socket.on('chat init', function(chatId, username) {
-      if (!chatId || !username) {
+    socket.on('socket init', function(roomId, username) {
+      if (!roomId || !username) {
         socket.emit('redirect');
+      } else {
+        addSocketInfo(socket, roomId, username);
+        socket.join(roomId);
+        if (roomId != 'notification') {
+          //  = if this is a chat room
+          logger.initLogMap(roomId);
+          socket.emit('chat init');
+
+          var log = logger.getLog(roomId, false, socket.username);
+          log ? socket.emit('load log', { log }) : console.log('No log for ' + roomId);
+
+        } else {
+          // = if this is a notification channel
+          checkNotification(socket);
+        }
       }
-      addSocketInfo(socket, chatId, username);
-
-      socket.join(chatId);
-      logger.initLogMap(chatId);
-
-      var log = logger.obtainLog(chatId);
-      if (log != null && log !== undefined) {
-        log.forEach((item, i) => {
-          socket.emit('receive message', item.username, item.msg, getDateString(item.date));
-        });
-      }
-      // init ends here
-    });
-
-    socket.on('notification init', function(username) {
-      var roomId = 'notification';
-      addSocketInfo(socket,roomId,username);
-      socket.join(roomId);
-    });
-
-    socket.on('send notification', function(username){
 
     });
-
-    socket.on('request chat list', function(username){
+    socket.on('request chat list', function(username) {
       // search DB Chat collection for socket's username
-      if (username){
-        Chat.findAllByUsername(username, function (err, chats){
+      if (username) {
+        Chat.findAllByUsername(username, function(err, chats) {
           if (err) {
-            console.log (' ERR @ request chat list (1)');
+            console.log(' ERR @ request chat list (1)');
             console.log(err);
           }
-          if (chats){
+          if (chats) {
             console.log(' DB CHATS : \n' + chats);
             // socket.emit('receive chat list', chats);
             chats.forEach((chat, i) => {
@@ -65,54 +88,58 @@ module.exports.listen = function(server) {
               var chatId = chat._id.toString();
               data.push(chatId);
               chat.users.forEach((user, i) => {
-                if (user != username){
+                if (user != username) {
                   data.push(user);
                 }
               });
-              var msg = "This is a temporary message.";
-              var stamp = "Month 00";
-              data.push (msg);
-              data.push (stamp);
-              console.log ('data : ' + data);
-              var temp = {name:"you", king:"queen"};
-              socket.emit('receive chat list', {data, temp});
+              var item = logger.getLastLog(chatId, false);
+              var msg = item != -1?item.msg:null;
+              var stamp = item != -1?item.date:null;
+              data.push(msg);
+              data.push(stamp);
+              console.log('data : ' + data);
+              // var temp = {name:"you", king:"queen"};
+              // socket.emit('receive chat list', {data, temp});
+              socket.emit('receive chat list', { data });
             });
-
-
           }
         });
+      }
 
+    });
+    socket.on('send message', function(data) {
+      // data validation
+
+
+      // set data's date-time to current time
+      data.date = Date.now();
+
+      // add data to log
+      var retLog = logger.addLogToChat(data.chatId, data.username, data.msg, data.date);
+      if (retLog) { // if successful
+        // for & send messages as html tags
+        myMsg = logger.buildMessage(data.username, data.msg, data.date, true);
+        socket.emit('receive msg', myMsg);
+
+        // let others in chatroom be notified
+        notifyAll (data.chatId, data.username);
+
+        yourMsg = logger.buildMessage(data.username, data.msg, data.date, false);
+        socket.to(data.chatId).emit('receive msg', yourMsg);
+
+      } else { // if unsuccessful
 
       }
 
     });
 
-    socket.on('send message', function(data) {
-      // data == {(String) chatId, (String) username, (String) msg, (Number) date}
-      // console.log('======send message=======');
-      // console.log('    data          : ' + data);
-      // console.log('     -- room      : ' + data.chatId);
-      // console.log('     -- username  : ' + data.username);
-      // console.log('     -- msg       : ' + data.msg);
-      // console.log('     -- date      : ' + data.date);
-      printData(data);
-      data.date = Date.now();
-      // convert date number into time stamp
-      var stamp = getDateString(new Date(data.date));
-      io.in(data.chatId).emit('receive message', data.username, data.msg, stamp);
-
-      var log = { "username": data.username, "msg": data.msg, "date": data.date };
-      // logger.addLog(data.chatId, log);
-      // console.log(logger.getLog(data.chatId));
-
-      var retLog = logger.addLogToChat(data.chatId, data.username, data.msg, data.date);
-      console.log(retLog.toString());
-      console.log('======send message==END==');
+    socket.on('clear notification', function(){
+      notify[socket.username] = false;
     });
 
     socket.on('disconnect', function() {
-      removeSocketInfo(socket);
-      console.log('[' + socket.username + '] disconnected.');
+      var chatId = removeSocketInfo(socket);
+      console.log('[' + socket.username + '] disconnected from ' + chatId + '.');
 
       // var chatId = logger.getChatId(socket.id);
       // io.in(chatId).emit('system message', 'SYSTEM: A user disconnected.');
@@ -126,115 +153,71 @@ module.exports.listen = function(server) {
     });
   });
 
-  function addSocketInfo(socket, chatId, username){
+  function addSocketInfo(socket, chatId, username) {
+    // console.log('addSocketInfo triggered');
     socket.username = username;
     var item = {};
     item[socket.id] = chatId;
-    usernames[username] = item;
+    online_users[username] = item;
     if (!chats[chatId]) {
       chats[chatId] = new Array();
     }
-    if (!chats[chatId].includes(username)){
+    if (!chats[chatId].includes(username)) {
       chats[chatId].push(username);
     }
   }
 
-  function removeSocketInfo(socket){
-    // remove entry from usernames
+  /**
+   * @returns {string} chatId
+   */
+  function removeSocketInfo(socket) {
+    // remove entry from online_users
     var username = socket.username;
     var sid = socket.id;
-    if (username){
-      var chatId = usernames[username][sid];
-      delete usernames[username];
+    var chatId = '';
+    if (username) {
+      chatId = online_users[username][sid];
+      delete online_users[username];
+      // var chat = chats[chatId];
+      // if (chat){
+      //   var i = chats[chatId].indexOf(username);
+      //   if (i != -1) chats[chatId].splice(i,1);
+      // }
+
     }
+    return chatId;
   }
 
-  function checkNotified(){
-
-  }
-
-  function printData(data, spaces){
-    var allowed = (typeof spaces == typeof 15) && (spaces <= 20);
-    var s = allowed?spaces:15;
-    if(data){
-      console.log('    data           : ' + data);
-      for (var key in data){
-        var str = '-- ' + key;
-        var i;
-        for (i = 0; i < s-str.length; i++){
-          str += ' ';
-        }
-        str += ': ' + data[key];
-        if (typeof data[key] != 'string' && typeof data[key] != 'number'){
-          for (var k in data[key]){
-            var str2 = '---- ' + k;
-            var j;
-            for (j = 0; j < s-str2.length; j++){
-              str2 += ' ';
-            }
-            str2 += ': ' + data[key][k];
-            console.log(str2);
+  function notifyAll(chatId, sentBy) {
+    chats[chatId].forEach((user, i) => {
+      console.log( '@ notifyAll, chats[chatId] = ' + user);
+      if (user != sentBy) {
+        // for every user in chat except sender
+        notify[user] = true;
+        console.log('  -- notify[' + user + '] = ' + notify[user]);
+        if (online_users[user]){
+          // if this user is online
+          var socketId = check_key('notification', online_users[user]);
+          if (socketId != '') {
+            // if the user is in 'notification' channel,
+            io.to(socketId).emit('receive notification');
+            console.log(' @ notifyAll, receive notification triggered.');
           }
-        } else {
-          console.log(str);
         }
       }
-    }
+    });
   }
 
-  function getDateString(dateNum) {
-    var date = new Date(dateNum);
-    console.log(date.toString());
-    var y = date.getFullYear();
-    var m = addZero(date.getMonth() + 1);
-    var d = addZero(date.getDate());
-    var hh = addZero(date.getHours());
-    var mm = addZero(date.getMinutes());
-    return y + '-' + m + '-' + d + " | " + hh + ':' + mm;
+  function checkNotification (socket){
+    var state = notify[socket.username];
+    console.log ('should check notification, status : ' + state);
+    if (state === true){
+      console.log ('should receive notification');
+      socket.emit('receive notification');
+    } else if (state === undefined) {
+      // create one with false
+      notify[socket.username] = false;
+    } // ignore when false
   }
 
-  /**
-   * @WIP
-   */
-  function convertToTimeStamp(date) {
-    var date1 = new Date('7/13/2010');
-    var date2 = new Date(Date.now());
-
-    var h = date.getHours();
-    var g = h - 12;
-    var i = (g < 0 || g == 12) ? '오전' : '오후';
-    var hh = addZero((i == '오후') ? g : h);
-    var mm = addZero(date.getMinutes());
-    var ret = i + ' ' + hh + ':' + mm + ' | ';
-
-    var diffTime = Math.abs(date2 - date);
-
-    var diff = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 365));
-    var urn = (diff > 0) ? diff + '년 전' : '';
-    if (urn != '') return ret + urn;
-
-    diff = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 30));
-    urn = (diff > 0) ? diff + '달 전' : '';
-    if (urn != '') return ret + urn;
-
-    diff = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    urn = (diff > 1) ? diff + '일 전' : '';
-    if (urn != '') return ret + urn;
-
-    diff = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    urn = (diff > 1) ? diff + '일 전' : '';
-    if (urn != '') return ret + urn;
-
-    return ret + urn;
-    console.log(diffTime + " milliseconds");
-    console.log(diffDays + " days");
-
-  }
-
-  function addZero(i) {
-    if (i < 10) {
-      i = "0" + i;
-    }
-    return i;
-  }
 }

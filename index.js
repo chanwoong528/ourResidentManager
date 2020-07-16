@@ -50,11 +50,9 @@ app.use(passport.session());
 
 // Custom Middlewares // 3
 app.use(function(req,res,next){
-  console.log('-- REQUEST REQUEST REQUEST REQUEST REQUEST --');
   res.locals.isAuthenticated = req.isAuthenticated();
   res.locals.currentUser = req.user;
-  res.locals.chatId = '';
-  res.locals.opponent = req.opponent;
+  res.locals.chatId = 'notification';
   next();
 });
 

@@ -1,0 +1,19 @@
+<script>
+  var socket = io();
+  $(".button__badge").hide();
+  console.log('isAuthenticated? ' + `<%= isAuthenticated %>`);
+  socket.emit('socket init', 'notification', `<%= currentUser %>`
+      ? `<%= currentUser.username %>`
+      : `''`);
+  socket.on('redirect', function () {
+    socket.emit('disconnect');
+    window.location.replace("../");
+  });
+  socket.on('receive notification', function(){
+    $(".button__badge").show();
+  });
+  function clearNotification(){
+    $(".button__badge").hide();
+    socket.emit('clear notification');
+  }
+</script>

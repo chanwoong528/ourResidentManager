@@ -1,40 +1,95 @@
 var mongoose = require('mongoose');
 var Chat = require('../models/Chat');
 var User = require('../models/User');
+var escapeUtil = require('./escapeUtil');
+var dateUtil = require('./dateUtil');
 
 var Logger = function() {
-  // data[0] == (String) chatId
-  // data[1] == (Array) logEntry
-  //  data[1][n] == (String) username, (String) msg, (Date) stamp
-  // data[2..n] == (socket.id) socketId
+  // logMap looks like this:
+  // {
+  //   yourChatId:[
+  //     {username:"donkim1212", msg:"Hello, world!", date:1232131},
+  //     {username:"moon528", msg:"foo, bar", date:1232132},
+  //     ...
+  //   ]
+  //   anotherChatId:[
+  //     ...
+  //   ]
+  //   ...
+  // }
 };
 Logger.prototype.logMap = {};
 
-Logger.prototype.obtainLog = function (chatId){
-  return Logger.prototype.logMap[chatId] === undefined ? -1 : Logger.prototype.logMap[chatId];
-}
-
 Logger.prototype.initLogMap = function(chatId) {
   // 1. check if log for chatId already exists
-  var entry = Logger.prototype.obtainLog(chatId);
-  if (entry == -1){
+  var entry = Logger.prototype.getLog(chatId);
+  if (entry == -1) {
     Logger.prototype.logMap[chatId] = new Array();
   }
   // 1-1. if yes, check by key(i.e., logMap[chatId]) to access log
   // 1-2. if no, create one with chatId as key, logMap[chatId]
 }
 
-Logger.prototype.addLogToChat = function(chatId, username, msg, date){
-  var log = {username:username, msg:msg, date:date};
+Logger.prototype.getDBChatList = async function (callback){
+  await Chat.find({},callback);
+}
+
+Logger.prototype.addLogToChat = function(chatId, username, msg, date) {
+  var log = { username: username, msg: msg, date: date };
   Logger.prototype.checkLogMapFor(chatId);
   Logger.prototype.logMap[chatId].push(log);
   return log;
 }
 
-Logger.prototype.checkLogMapFor = function (chatId){
-  if (!Logger.prototype.logMap[chatId]){
+Logger.prototype.checkLogMapFor = function(chatId) {
+  if (!Logger.prototype.logMap[chatId]) {
     Logger.prototype.logMap[chatId] = new Array();
   }
+}
+
+Logger.prototype.updateDBLog = function(chatId) {
+  Chat.findOneByChatIdString(chatId, function(err, chat){
+
+  });
+}
+
+Logger.prototype.getLog = function(chatId, fromDB, username) {
+  if (!username) return Logger.prototype.logMap[chatId] === undefined ? -1 : Logger.prototype.logMap[chatId];
+  var logEntry = Logger.prototype.logMap[chatId];
+  var log = '';
+  if (logEntry != null && logEntry !== undefined) {
+    logEntry.forEach((item, i) => {
+      isMyMsg = item.username == username;
+      log += Logger.prototype.buildMessage(item.username, item.msg, item.date, isMyMsg);
+      // log += ;
+    });
+  }
+  return log;
+}
+
+Logger.prototype.getLastLog = function(chatId, fromDB){
+  if (Logger.prototype.logMap[chatId]){
+    var data = Logger.prototype.logMap[chatId][Logger.prototype.logMap[chatId].length - 1];
+    return data?{msg:data.msg, date:dateUtil.getDateAsString(data.date)}:-1;
+  }
+  return -1;
+}
+
+Logger.prototype.buildMessage = function (username, msg, date, isMyMsg){
+  var built = '';
+  var n = username;
+  var m = escapeUtil.escape(msg);
+  var d = escapeUtil.escape(dateUtil.getDateAsString(date));
+  built += isMyMsg ?
+    `<div class="outgoing_msg"><div class="sent_msg">` :
+    `<div class="incoming_msg"><div class="received_msg"><div class="received_withd_msg">`;
+  built += `<p>`;
+  built += m;
+  built += `</p><span class="time_date">`;
+  built += d;
+  built += `</span></div></div>`;
+  built += isMyMsg?``:`</div>`;
+  return built;
 }
 
 /**
@@ -122,7 +177,7 @@ Logger.prototype.getChatId = function(socketId) {
   return entry.chatId;
 }
 
-Logger.prototype.getLog = function(chatId) {
+Logger.prototype.getLogDeprecated = function(chatId) {
   var entry = Logger.prototype.getEntry(chatId);
   return entry.log;
 }
@@ -190,7 +245,7 @@ Logger.prototype.loadDBLog = function(chatId) {
       return -1;
     }
     if (chat) {
-      var arr = chat.getLog();
+      var arr = chat.getLogDeprecated();
       console.log('chat log obtained: ' + arr);
       return arr;
     }

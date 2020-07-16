@@ -3,7 +3,7 @@
 <nav class="navbar navbar-expand-sm navbar-light bg-light mb-3">
   <div class="container">
 
-    <div class="navbar-brand"> <i class="fa fa-group" style="font-size:30px"></i>
+    <div class="navbar-brand"> <i class="fa fa-group" style='font-size:24px'></i>
       우리 동네 이야기 </div>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
       <span class="navbar-toggler-icon"></span>
@@ -22,7 +22,12 @@
         <% if(isAuthenticated){ %>
         <!-- 1 -->
         <li>
-          <%- include('./chat-icon') %>
+          <a href="/dm/" class="nav-link" onclick="clearNotification()">
+            <i class='far fa-comment-dots' style='font-size:24px'>
+              <span class="button__badge"></span>
+            </i>
+          </a>
+          <%- include('./socket') %>
         </li>
         <li class="nav-item"><a href="/users/<%= currentUser.username %>" class="nav-link">My Account</a></li>
         <li class="nav-item"><a href="/logout" class="nav-link">로그아웃</a></li>
