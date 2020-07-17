@@ -6,13 +6,15 @@
     ? "<%= chatId %>"
     : "notification";
   var username = "<%= currentUser.username %>";
-  // loadChatDefault();
-  console.log("chatId = " + chatId);
-  console.log("username = " + username);
 
   $(function () {
     socket.emit('request chat list', username);
-    function msgSendBtnPressed(event) {
+    $(".write_msg").keyup(function(event){
+      if (event.which == 13){
+        msgSendBtnPressed();
+      }
+    });
+    function msgSendBtnPressed() {
       if ($('.write_msg').val() !== '' && $('.write_msg').val() !== null) {
         socket.emit('send message', {
           'chatId': chatId,
@@ -44,9 +46,7 @@
     $(".msg_history").show(1000);
     $(".msg_history").children().remove();
   }
-  function loadChatDefault() {
-    socket.emit('socket init', chatId, username);
-  }
+
   function loadChatBySelection(elem) {
     var cid = $(elem).attr("data-chatId");
     chatId = cid;

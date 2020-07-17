@@ -119,14 +119,23 @@ div.about {
   color : red;
 }
 
-.button__badge {
-  height: 10px;
-  width: 10px;
-  background-color: #FF2424;
-  border-radius: 50%;
-  display: inline-block;
+.button {
+  color: white;
+  display: inline-block; /* Inline elements with width and height. TL;DR they make the icon buttons stack from left-to-right instead of top-to-bottom */
+  position: relative; /* All 'absolute'ly positioned elements are relative to this one */
+  padding: 2px 5px; /* Add some padding so it looks nice */
+}
 
-  position: relative; /* Position the badge within the relatively positioned button */
-  top: 3px;
-  right: 15px;
+.button__badge {
+  background-color: #fa3e3e;
+  border-radius: 2px;
+  color: white;
+
+  padding: 6px 6px;
+  border-radius: 6px;
+  font-size: 10px;
+
+  position: absolute; /* Position the badge within the relatively positioned button */
+  top: 12px;
+  right: -2px;
 }
