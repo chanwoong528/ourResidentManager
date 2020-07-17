@@ -1,7 +1,7 @@
 module.exports = {
   getDateAsString: function(dateNum) {
     var date = new Date(dateNum);
-    console.log(date.toString());
+    // console.log(date.toString());
     var y = date.getFullYear();
     var m = addZero(date.getMonth() + 1);
     var d = addZero(date.getDate());

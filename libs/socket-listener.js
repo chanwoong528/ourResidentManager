@@ -128,7 +128,7 @@ module.exports.listen = function(server) {
         socket.to(data.chatId).emit('receive msg', yourMsg);
 
       } else { // if unsuccessful
-
+        
       }
 
     });
@@ -189,17 +189,14 @@ module.exports.listen = function(server) {
   }
 
   function notifyAll(chatId, sentBy) {
-    chats[chatId].forEach((user, i) => {
+    chats[chatId].forEach((user, i) => { // for every user in chat
       console.log( '@ notifyAll, chats[chatId] = ' + user);
-      if (user != sentBy) {
-        // for every user in chat except sender
+      if (user != sentBy) { // except the sender
         notify[user] = true;
         console.log('  -- notify[' + user + '] = ' + notify[user]);
-        if (online_users[user]){
-          // if this user is online
+        if (online_users[user]){ // if this user is online
           var socketId = check_key('notification', online_users[user]);
-          if (socketId != '') {
-            // if the user is in 'notification' channel,
+          if (socketId != '') { // if the user is in 'notification' channel,
             io.to(socketId).emit('receive notification');
             console.log(' @ notifyAll, receive notification triggered.');
           }
