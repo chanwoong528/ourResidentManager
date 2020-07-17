@@ -4,10 +4,24 @@ var User = require('../models/User');
 var Logger = require('./Logger');
 var logger = new Logger();
 var socketio = require('socket.io');
+var kg = require('../libs/keygen');
 
 var online_users = {}; // {username:{socket.id: chatId}}
 var chats = {}; // {chatId:[username]}
 var notify = {}; // {username:boolean}
+var passKey = {}; // {username:key}
+
+module.exports.newPassKey = function(username){
+  var key = kg.generateKey() || ' %%% this is a temporary key for ' + username;
+  passKey[username] = key;
+  console.log (' **** passKey for [' + username + ']: ' + passKey[username]);
+  return key;
+}
+
+module.exports.getPassKey = function(username){
+  if (!passKey[username]) addPassKey(username);
+  return passKey[username];
+}
 
 function check_key(v, m) {
   var val = '';
@@ -51,7 +65,7 @@ module.exports.listen = function(server) {
   io = socketio.listen(server);
 
   io.on('connection', function(socket) {
-    socket.on('socket init', function(roomId, username) {
+    socket.on('socket init', async function(roomId, username) {
       if (!roomId || !username) {
         socket.emit('redirect');
       } else {
@@ -62,7 +76,7 @@ module.exports.listen = function(server) {
           logger.initLogMap(roomId);
           socket.emit('chat init');
 
-          var log = logger.getLog(roomId, false, socket.username);
+          var log = await logger.getLog(roomId, false, socket.username);
           log ? socket.emit('load log', { log }) : console.log('No log for ' + roomId);
 
         } else {
@@ -72,9 +86,9 @@ module.exports.listen = function(server) {
       }
 
     });
-    socket.on('request chat list', function(username) {
+    socket.on('request chat list', function(username, key) {
       // search DB Chat collection for socket's username
-      if (username) {
+      if (username && passKey[username] == key) {
         Chat.findAllByUsername(username, function(err, chats) {
           if (err) {
             console.log(' ERR @ request chat list (1)');
@@ -107,6 +121,12 @@ module.exports.listen = function(server) {
       }
 
     });
+
+    socket.on('request chat list 2', function (username, key){
+      if (username) {
+        // Chat.find({}).sort()
+      }
+    });
     socket.on('send message', function(data) {
       // data validation
 
@@ -128,7 +148,7 @@ module.exports.listen = function(server) {
         socket.to(data.chatId).emit('receive msg', yourMsg);
 
       } else { // if unsuccessful
-        
+
       }
 
     });

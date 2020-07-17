@@ -3,6 +3,7 @@ var Chat = require('../models/Chat');
 var User = require('../models/User');
 var escapeUtil = require('./escapeUtil');
 var dateUtil = require('./dateUtil');
+var mustache = require('mustache');
 
 var Logger = function() {
   // logMap looks like this:
@@ -30,8 +31,8 @@ Logger.prototype.initLogMap = function(chatId) {
   // 1-2. if no, create one with chatId as key, logMap[chatId]
 }
 
-Logger.prototype.getDBChatList = async function (callback){
-  await Chat.find({},callback);
+Logger.prototype.getDBChatList = function(callback) {
+  Chat.find({}, callback);
 }
 
 Logger.prototype.addLogToChat = function(chatId, username, msg, date) {
@@ -41,6 +42,12 @@ Logger.prototype.addLogToChat = function(chatId, username, msg, date) {
   return log;
 }
 
+Logger.prototype.updateDbLastLog = async function (chatId, data){
+  Chat.findOne({_id:mongoose.Types.ObjectId(chatId)}, function (err, chat){
+
+  });
+}
+
 Logger.prototype.checkLogMapFor = function(chatId) {
   if (!Logger.prototype.logMap[chatId]) {
     Logger.prototype.logMap[chatId] = new Array();
@@ -48,7 +55,7 @@ Logger.prototype.checkLogMapFor = function(chatId) {
 }
 
 Logger.prototype.updateDBLog = function(chatId) {
-  Chat.findOneByChatIdString(chatId, function(err, chat){
+  Chat.findOneByChatIdString(chatId, function(err, chat) {
 
   });
 }
@@ -67,15 +74,15 @@ Logger.prototype.getLog = function(chatId, fromDB, username) {
   return log;
 }
 
-Logger.prototype.getLastLog = function(chatId, fromDB){
-  if (Logger.prototype.logMap[chatId]){
+Logger.prototype.getLastLog = function(chatId, fromDB) {
+  if (Logger.prototype.logMap[chatId]) {
     var data = Logger.prototype.logMap[chatId][Logger.prototype.logMap[chatId].length - 1];
-    return data?{msg:data.msg, date:dateUtil.getDateAsString(data.date)}:-1;
+    return data ? { msg: data.msg, date: dateUtil.getDateAsString(data.date) } : -1;
   }
   return -1;
 }
 
-Logger.prototype.buildMessage = function (username, msg, date, isMyMsg){
+Logger.prototype.buildMessage = function(username, msg, date, isMyMsg) {
   var built = '';
   var n = username;
   var m = escapeUtil.escape(msg);
@@ -88,8 +95,21 @@ Logger.prototype.buildMessage = function (username, msg, date, isMyMsg){
   built += `</p><span class="time_date">`;
   built += d;
   built += `</span></div></div>`;
-  built += isMyMsg?``:`</div>`;
+  built += isMyMsg ? `` : `</div>`;
   return built;
+}
+
+Logger.prototype.builtTmplMessage = function(data, mine) {
+  var item = {
+    "msg": escapeUtil.escape(data.msg),
+    "date": escapeUtil.escape(dateUtil.getDateAsString(data.date))
+  }
+  var template = mine ?
+    `<div class="outgoing_msg"><div class="sent_msg">` :
+    `<div class="incoming_msg"><div class="received_msg"><div class="received_withd_msg">`;
+  template += `<p>{{item.msg}}</p><span class="time_date">{{item.date}}</span></div></div>`;
+  if (!mine) template += `</div>`;
+  return
 }
 
 /**

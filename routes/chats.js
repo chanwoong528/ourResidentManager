@@ -3,10 +3,12 @@ var router = express.Router();
 var Chat = require('../models/Chat');
 var util = require('../util');
 var User = require('../models/User');
+var socketio = require('../libs/socket-listener');
 
 // Index
 router.get('/', util.isLoggedin, function(req, res){
-  user1 = req.user.username;
+  var user1 = req.user.username;
+  var passKey = socketio.newPassKey(user1);
   Chat.findAllByUsername(user1, function(err, chats){
     if (err){
       console.log(' ERR @ routes/chats.js');
@@ -18,6 +20,7 @@ router.get('/', util.isLoggedin, function(req, res){
       // console.log(chats);
       res.render('dm/index',{
         chatId:'',
+        passKey: passKey
       });
     }
   });

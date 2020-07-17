@@ -10,7 +10,7 @@ util.parseError = function(errors) {
     }
   }
   else if(errors.code == '11000' || errors.errmsg.indexOf('username') > 0) {
-    parsed.username = { message:'아이디가 중복됩니다' };
+    parsed.username = { message:'아이디가 중복됩니다.' };
   }
   else {
     parsed.unhandled = JSON.stringify(errors);
@@ -24,13 +24,13 @@ util.isLoggedin = function(req, res, next){
     next();
   }
   else {
-    req.flash('errors', {login:'로그인 먼저 해주세요'});
+    req.flash('errors', {login:'로그인 후 이용하실 수 있습니다.'});
     res.redirect('/login');
   }
 };
 
 util.noPermission = function(req, res){
-  req.flash('errors', {login:"권한이 없습니다 관리자 아이디로 로그인 해주세요"});
+  req.flash('errors', {login:"접근 권한이 없습니다."});
   req.logout();
   res.redirect('/login');
 };

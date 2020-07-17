@@ -1,6 +1,7 @@
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy; // 1
 var User = require('../models/User');
+var sio = require('../libs/socket-listener');
 
 // serialize & deserialize User // 2
 passport.serializeUser(function(user, done) {
@@ -15,23 +16,23 @@ passport.deserializeUser(function(id, done) {
 // local strategy // 3
 passport.use('local-login',
   new LocalStrategy({
-      usernameField : 'username', // 3-1
-      passwordField : 'password', // 3-1
+      usernameField : 'username',
+      passwordField : 'password',
       passReqToCallback : true
     },
-    function(req, username, password, done) { // 3-2
+    function(req, username, password, done) {
       User.findOne({username:username})
-        .select({password:1})
+        .select({password:1, username:1})
         .exec(function(err, user) {
           if (err) return done(err);
 
-          if (user && user.authenticate(password)){ // 3-3
-            return done(null, user);
+          if (user && user.authenticate(password)){ // user authentication successful
+            return done(null, user, sio.newPassKey(user.username));
           }
           else {
             req.flash('username', username);
             req.flash('errors', {login:'The username or password is incorrect.'});
-            return done(null, false);
+            return done(null, false, null);
           }
         });
     }

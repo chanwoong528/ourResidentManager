@@ -41,31 +41,22 @@ app.use(express.static(__dirname+'/public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(methodOverride('_method'));
-app.use(flash()); // 2
+app.use(flash());
 app.use(session({secret:'MySecret', resave:true, saveUninitialized:true}));
 
-// Passport // 2
+// Passport
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Custom Middlewares // 3
+// Custom Middlewares
 app.use(function(req,res,next){
   res.locals.isAuthenticated = req.isAuthenticated();
   res.locals.currentUser = req.user;
+  res.locals.passKey = req.passKey;
   res.locals.chatId = 'notification';
+  res.locals.util = util;
   next();
 });
-
-//custom Middleware fs
-app.use(function(req,res,next){
-  res.locals.isAuthenticated = req.isAuthenticated();
-  res.locals.currentUser = req.user;
-  res.locals.util = util; // 1
-  next();
-});
-
-
-
 
 // Routes
 app.use('/', require('./routes/home'));
@@ -73,10 +64,7 @@ app.use('/users', require('./routes/users'));
 app.use('/dm', require('./routes/chats'));
 app.use('/boards', util.getPostQueryString, require('./routes/posts'));
 app.use('/comments', util.getPostQueryString, require('./routes/comments'));
-
 app.use('/files', require('./routes/files'));
-
-
 
 // Port setting
 var port = process.env.PORT || 3000;

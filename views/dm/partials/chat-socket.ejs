@@ -6,9 +6,9 @@
     ? "<%= chatId %>"
     : "notification";
   var username = "<%= currentUser.username %>";
-
+  var passKey = `<%= passKey %>`;
   $(function () {
-    socket.emit('request chat list', username);
+    socket.emit('request chat list', username, passKey);
     $(".write_msg").keyup(function(event){
       if (event.which == 13){
         msgSendBtnPressed();
@@ -40,6 +40,7 @@
       showChat();
     }
   });
+
   function showChat(){
     $("#temp").hide();
     $(".input_msg_write").show();
@@ -53,9 +54,6 @@
     var target_username = $(elem).attr("id");
     socket.emit('socket init', cid, username);
   }
-  socket.on('receive chat list', ({data}) => {
-    loadChatList(data[0], data[1], data[2], data[3], data[0] == "<%= chatId %>");
-  });
 
   socket.on('load log', ({log}) => {
     $(".msg_history").append(log);
@@ -63,6 +61,20 @@
   });
 
   socket.on('system message', function (msg) {});
+
+  function refreshChatList(){
+    $("body").off("click","#refresh",refreshChatList);
+    $(".chat_list").remove();
+    $("#loading").show();
+    socket.emit('request chat list', username, passKey);
+  }
+
+  socket.on('receive chat list', ({data}) => {
+    $("#loading").hide();
+    loadChatList(data[0], data[1], data[2], data[3], data[0] == "<%= chatId %>");
+  }, function(){
+    $("body").on("click","#refresh",refreshChatList);
+  });
 
   function loadChatList(chatId, username, msg, date, active) {
     var str_row;
