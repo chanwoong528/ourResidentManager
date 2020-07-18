@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+var crypto = require('crypto');
 
 /**
  * @returns randomly generated value to be used for client-server socket interactions.
@@ -6,7 +6,7 @@ const crypto = require('crypto');
  var algorithm = 'aes-256-ctr';
  var password = 'd6F3Efeq';
 
-module.export.generateKey = function() {
+generateKey = function() {
   var passKey = Math.random().toString(36).slice(2);
             //  Math.random().toString(36)  -> "0.uk02kso845o"
                 //36 = 36진법: 숫자 0~9, 알파벳 -> "uk02kso845o"
@@ -14,15 +14,13 @@ module.export.generateKey = function() {
   return passKey;//stringkey return
 };
 
-
-module.export.encryptKey = function(key){
+encryptKey = function(key){
 
   var cipher = crypto.createCipher(algorithm,password);
   var crypted = cipher.update(key,'utf8','hex');
    crypted += cipher.final('hex');
    return crypted;
-};
-module.export.decryptKey = function(key){
+};decryptKey = function(key){
 
   var decipher = crypto.createDecipher(algorithm,password);
   var dec = decipher.update(key,'hex','utf8');
