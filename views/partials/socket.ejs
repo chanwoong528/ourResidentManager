@@ -1,7 +1,9 @@
 <script>
   var socket = io();
+  var username = "<%= currentUser.username %>";
   $(".button__badge").hide();
-  socket.emit('socket init', 'notification', `<%= currentUser.username %>`);
+  // socket.emit('socket init', 'notification', `<%= currentUser.username %>`);
+  socket.emit ('notification init', username);
 
   socket.on('redirect', function () {
     socket.emit('disconnect');

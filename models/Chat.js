@@ -84,7 +84,7 @@ chatSchema.statics.findOneByChatIdString = function(chatId, callback) {
  * @returns set of Chat documents containing given username
  */
 chatSchema.statics.findAllByUsername = function(username, callback) {
-  return this.find({ users: { $all: [ username ] } }, callback);
+  return this.find({ users: { $all: [username] } }, callback);
 };
 
 var Chat = mongoose.model('chat', chatSchema);

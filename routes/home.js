@@ -6,7 +6,6 @@ var passport = require('../config/passport');
 // Home
 router.get('/', function(req, res) {
   //console.log(req.url);
-  console.log(' did it went through?? = ' + req.passKey);
   res.render('home/welcome');
 });
 router.get('/about', function(req, res) {

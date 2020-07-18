@@ -1,34 +1,35 @@
 <script>
   $(".msg_history").hide();
   $(".input_msg_write").hide();
+  // $("body").on("click","#refresh",refreshChatList);
 
-  var chatId = "<%= chatId %>"
-    ? "<%= chatId %>"
-    : "notification";
-  var username = "<%= currentUser.username %>";
+  // var chatId = "<%= chatId %>"
+  //   ? "<%= chatId %>"
+  //   : "notification";
+  var target_username = "";
   var passKey = `<%= passKey %>`;
   $(function () {
     socket.emit('request chat list', username, passKey);
     $(".write_msg").keyup(function(event){
       if (event.which == 13){
-        msgSendBtnPressed();
+        sendMsg();
       }
     });
-    function msgSendBtnPressed() {
+    function sendMsg() {
       if ($('.write_msg').val() !== '' && $('.write_msg').val() !== null) {
         socket.emit('send message', {
-          'chatId': chatId,
           'username': username,
+          'target': '',
           'msg': $('.write_msg').val(),
           'date': null
-        });
+        }, passKey);
       }
       $('.write_msg').val('');
       $('.write_msg').focus();
       event.preventDefault();
     }
 
-    $('.msg_send_btn').on('click', msgSendBtnPressed);
+    $('.msg_send_btn').on('click', sendMsg);
 
     socket.on('receive msg', function(msg){
       $(".msg_history").append(msg);
@@ -36,9 +37,10 @@
     });
   });
   socket.on('chat init', function(){
-    if (chatId != 'notification') {
-      showChat();
-    }
+    // if (chatId != 'notification') {
+    //   showChat();
+    // }
+    showChat();
   });
 
   function showChat(){
@@ -49,14 +51,16 @@
   }
 
   function loadChatBySelection(elem) {
-    var cid = $(elem).attr("data-chatId");
-    chatId = cid;
+    // $(".chat_list active_chat").toggleClass(".chat_list active_chat").toggleClass("chat_list");
+    // $(elem).toggleClass("chat_list").toggleClass("chat_list active_chat");
+    var i = $(elem).attr("data-index"); // seems unnecessary?
     var target_username = $(elem).attr("id");
-    socket.emit('socket init', cid, username);
+    socket.emit('chat init', username, target_username, passKey);
+    // socket.emit('socket init', username, passKey);
   }
 
-  socket.on('load log', ({log}) => {
-    $(".msg_history").append(log);
+  socket.on('load log', function ({recentLog}){
+    $(".msg_history").append(recentLog);
     $('.msg_history').scrollTop($('.msg_history')[0].scrollHeight);
   });
 
@@ -67,25 +71,25 @@
     $(".chat_list").remove();
     $("#loading").show();
     socket.emit('request chat list', username, passKey);
+    $("body").delay(1000).on("click","#refresh",refreshChatList);
   }
 
-  socket.on('receive chat list', ({data}) => {
+  socket.on('receive chat list', ({list}) => {
+    // console.log(data);
     $("#loading").hide();
-    loadChatList(data[0], data[1], data[2], data[3], data[0] == "<%= chatId %>");
-  }, function(){
-    $("body").on("click","#refresh",refreshChatList);
+    $(".inbox_chat").append(list);
   });
 
-  function loadChatList(chatId, username, msg, date, active) {
+  function loadChatList(index, username, msg, date) {
     var str_row;
     str_row = `<div id="`;
     str_row += username;
     str_row += `" class="chat_list`;
-    str_row += active
-      ? ` active_chat`
-      : ``;
-    str_row += `" data-chatId="`;
-    str_row += chatId;
+    // str_row += active
+    //   ? ` active_chat`
+    //   : ``;
+    // str_row += `" data-index="`;
+    // str_row += index;
     str_row += `" style="cursor: pointer;" onclick="loadChatBySelection(this)">`;
     str_row += `<div class="chat_people">`;
     str_row += `<div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>`;
