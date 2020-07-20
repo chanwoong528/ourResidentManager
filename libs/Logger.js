@@ -20,7 +20,7 @@ var Logger = function() {
   // }
 };
 Logger.prototype.logMap = {}; // {chatId:[{username, msg, date},]}
-Logger.prototype.chatListsByUser = {}; // {username:{target:chatId,}}
+Logger.prototype.chatListByUser = {}; // {username:{target:chatId,}}
 
 Logger.prototype.init = async function() {
   try {
@@ -34,10 +34,10 @@ Logger.prototype.init = async function() {
 }
 
 Logger.prototype.getChatList = function(username) {
-  if (!Logger.prototype.chatListsByUser[username]) {
-    Logger.prototype.getChatId(username); // this refreshes chatListByUser[username]
-  }
-  var data = Logger.prototype.chatListsByUser[username]; // {target:chatId, ...}
+  // if (!Logger.prototype.chatListByUser[username]) {
+  Logger.prototype.getDBChatList(username); // this refreshes chatListByUser[username]
+  // }
+  var data = Logger.prototype.chatListByUser[username]; // {target:chatId, ...}
   var ret = '';
   for (var target in data) {
     var target_username = target;
@@ -52,12 +52,20 @@ Logger.prototype.getChatList = function(username) {
   return ret;
 }
 
-
+Logger.prototype.getDBChatList = function(username){
+  try {
+    var chats = Chat.find({ users: { $all: [username] } }).exec();
+    chats.forEach((chat, i) => {
+      Logger.prototype.track(chat);
+    });
+  } catch (err) {
+    err.stack;
+  }
+}
 
 Logger.prototype.getChatId = async function(username, target) {
   var chatId = '';
-  console.log(!Logger.prototype.chatListsByUser[username]);
-  if (!Logger.prototype.chatListsByUser[username]) {
+  if (!Logger.prototype.chatListByUser[username]) {
     try {
       var chats = await Chat.find({ users: { $all: [username] } }).exec();
       chats.forEach((chat, i) => {
@@ -71,7 +79,7 @@ Logger.prototype.getChatId = async function(username, target) {
       err.stack;
       return '';
     }
-  } else if (!Logger.prototype.chatListsByUser[username][target]) {
+  } else if (!Logger.prototype.chatListByUser[username][target]) {
     try {
       var chat = await Chat.findOne({ users: { $all: [username, target] } }).exec();
       if (chat) {
@@ -85,7 +93,7 @@ Logger.prototype.getChatId = async function(username, target) {
     }
 
   } else {
-    chatId = Logger.prototype.chatListsByUser[username][target];
+    chatId = Logger.prototype.chatListByUser[username][target];
   }
   return chatId;
 }
@@ -99,14 +107,14 @@ Logger.prototype.track = function(chat) {
     Logger.prototype.logMap[chatId] = new Array();
     // if (log) { // add log to logMap }
   }
-  if (!Logger.prototype.chatListsByUser[user1]) {
-    Logger.prototype.chatListsByUser[user1] = {};
+  if (!Logger.prototype.chatListByUser[user1]) {
+    Logger.prototype.chatListByUser[user1] = {};
   }
-  Logger.prototype.chatListsByUser[user1][user2] = chatId;
-  if (!Logger.prototype.chatListsByUser[user2]) {
-    Logger.prototype.chatListsByUser[user2] = {};
+  Logger.prototype.chatListByUser[user1][user2] = chatId;
+  if (!Logger.prototype.chatListByUser[user2]) {
+    Logger.prototype.chatListByUser[user2] = {};
   }
-  Logger.prototype.chatListsByUser[user2][user1] = chatId;
+  Logger.prototype.chatListByUser[user2][user1] = chatId;
 };
 
 Logger.prototype.getRecentLog = function(chatId, username, target, quantity) {
@@ -123,7 +131,12 @@ Logger.prototype.getRecentLog = function(chatId, username, target, quantity) {
     for (var i = start; i >= end; i--) {
       isMyMsg = logEntry[i].username == username;
       // starting from most recent, prepend
-      log = Logger.prototype.buildMessage(logEntry[i].username, logEntry[i].msg, logEntry[i].date, isMyMsg) + log;
+      var data = {
+        username: logEntry[i].username,
+        msg: logEntry[i].msg,
+        date: logEntry[i].date,
+      };
+      log = Logger.prototype.buildMessage(data, isMyMsg) + log;
     }
   }
   return log;
@@ -137,9 +150,10 @@ Logger.prototype.getLastLog = function(chatId, fromDB) {
   return -1;
 }
 
-Logger.prototype.addLogToChat = function(chatId, username, msg, date) {
-  var log = { username: username, msg: msg, date: date };
-  Logger.prototype.checkLogMapFor(chatId);
+Logger.prototype.addLogToChat = function(chatId, data) {
+  var cid = data.cid;
+  var log = { username: data.username, msg: data.msg, date: data.date };
+  Logger.prototype.checkLogMapFor(cid);
   Logger.prototype.logMap[chatId].push(log);
   return log;
 }
@@ -160,20 +174,44 @@ Logger.prototype.getLog = function(chatId, fromDB, username) {
   if (logEntry != null && logEntry !== undefined) {
     logEntry.forEach((item, i) => {
       isMyMsg = item.username == username;
-      log += Logger.prototype.buildMessage(item.username, item.msg, item.date, isMyMsg);
+      log += Logger.prototype.buildMessage(item, isMyMsg);
       // log += ;
     });
   }
   return log;
 }
 
+/**
+ * @returns -
+ */
+Logger.prototype.getLatestMsg = function(cid, data) {
+  var n = data.username;
+  var m = escapeUtil.escape(data.msg);
+  var d = escapeUtil.escape(dateUtil.getDateAsString(data.date));
+  var dat = {};
+  dat["username"] = n;
+  // find target username
+  for (var target in Logger.prototype.chatListByUser[n]) {
+    if (Logger.prototype.chatListByUser[n][target] == cid) {
+      dat["target"] = target;
+      break;
+    }
+  }
+  dat["msg"] = m;
+  dat["date"] = d;
+  return dat;
+}
 
 
-Logger.prototype.buildMessage = function(username, msg, date, isMyMsg) {
+/**
+ * @returns an array containing myMsg in 0, notMyMsg in 1.
+ */
+Logger.prototype.buildMessage = function(data, isMyMsg) {
+  // var dt = Logger.prototype.getSafeData(data.username, data.msg, data.date);
+  var n = data.username;
+  var m = escapeUtil.escape(data.msg);
+  var d = escapeUtil.escape(dateUtil.getDateAsString(data.date));
   var built = '';
-  var n = username;
-  var m = escapeUtil.escape(msg);
-  var d = escapeUtil.escape(dateUtil.getDateAsString(date));
   built += isMyMsg ?
     `<div class="outgoing_msg"><div class="sent_msg">` :
     `<div class="incoming_msg"><div class="received_msg"><div class="received_withd_msg">`;

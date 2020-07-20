@@ -52,7 +52,7 @@ module.exports.listen = function(server) {
 
     socket.on('chat init', async function(username, target, pk) {
       if (!username || !pk || !target || !passKey[username] || passKey[username] != pk) {
-        console.log('cinit');
+        console.log('cinit, username: ' + username + '\npk | passKey[username]: ' + pk + ' | ' + passKey[username]);
         socket.emit('redirect');
         socket.disconnect(true);
       } else { // params are valid
@@ -70,32 +70,11 @@ module.exports.listen = function(server) {
       }
     });
 
-    function addSocketInfo(socket, chatId, username, target) {
-      // console.log('addSocketInfo triggered');
-      socket.username = username;
-      var item = {};
-      item[socket.id] = chatId;
-      if (online_users[username]) {
-        for (var sid in online_users[username]) {
-          // leave current room
-          var cid = online_users[username][sid];
-          socket.leave(cid);
-        }
-      }
-      online_users[username] = item;
-      socket.join(chatId);
-      if (!chats[chatId]) {
-        chats[chatId] = new Array();
-      }
-      if (!chats[chatId].includes(username)) {
-        chats[chatId].push(username);
-      }
-    }
-
     socket.on('request chat list', function(username, pk) {
       if (!passKey[socket.username] || !pk || passKey[socket.username] != pk) {
         // invalid approach, disconnect
-        console.log('rcl');
+        console.log('rcl, username: ' + socket.username + '\npk | passKey[socket.username]: ' + pk + ' | ' + passKey[socket.username]);
+
         socket.emit('redirect');
         socket.disconnect(true);
       } else {
@@ -104,11 +83,13 @@ module.exports.listen = function(server) {
       }
 
     });
+
     socket.on('send message', function(data, pk) {
       // data validation
       if (!passKey[socket.username] || !pk || passKey[socket.username] != pk) {
         // invalid approach, disconnect
-        console.log('sm');
+        console.log('sm, username: ' + socket.username + '\npk | passKey[socket.username]: ' + pk + ' | ' + passKey[socket.username]);
+
         socket.emit('redirect');
         socket.disconnect(true);
       } else {
@@ -117,11 +98,12 @@ module.exports.listen = function(server) {
 
         var cid = online_users[socket.username][socket.id];
         console.log('cid?? ' + cid);
+
         // add data to log
-        var retLog = logger.addLogToChat(cid, data.username, data.msg, data.date);
+        var retLog = logger.addLogToChat(cid, data);
         if (retLog) { // if successful
           // for & send messages as html tags
-          myMsg = logger.buildMessage(data.username, data.msg, data.date, true);
+          myMsg = logger.buildMessage(data, true);
           socket.emit('receive msg', myMsg);
 
           // let others in chatroom be notified
@@ -130,8 +112,11 @@ module.exports.listen = function(server) {
           yourMsg = logger.buildMessage(data.username, data.msg, data.date, false);
           socket.to(cid).emit('receive msg', yourMsg);
 
-        } else { // if unsuccessful
+          // update the chat list for clients
+          updateChatList(socket, cid, data);
 
+        } else { // if unsuccessful, receive error message
+          socket.emit('error message');
         }
       }
 
@@ -157,6 +142,28 @@ module.exports.listen = function(server) {
     });
   });
 
+  function addSocketInfo(socket, chatId, username, target) {
+    // console.log('addSocketInfo triggered');
+    socket.username = username;
+    var item = {};
+    item[socket.id] = chatId;
+    if (online_users[username]) {
+      for (var sid in online_users[username]) {
+        // leave current room
+        var cid = online_users[username][sid];
+        socket.leave(cid);
+      }
+    }
+    online_users[username] = item;
+    socket.join(chatId);
+    if (!chats[chatId]) {
+      chats[chatId] = new Array();
+    }
+    if (!chats[chatId].includes(username)) {
+      chats[chatId].push(username);
+    }
+  }
+
   /**
    * @returns {string} chatId
    */
@@ -176,6 +183,14 @@ module.exports.listen = function(server) {
 
     }
     return chatId;
+  }
+
+  async function updateChatList(socket, cid, data){
+    updated = logger.getLatestMsg(cid, data);
+    console.log(' updated msg: ');
+    console.log(updated);
+    socket.emit('update chat list', updated.target, updated.msg, updated.date);
+    socket.to(cid).emit('update chat list', updated.username, updated.msg, updated.date);
   }
 
   /**
@@ -210,5 +225,4 @@ module.exports.listen = function(server) {
       notify[socket.username] = false;
     } // ignore when false
   }
-
 }

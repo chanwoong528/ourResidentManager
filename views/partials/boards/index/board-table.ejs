@@ -3,9 +3,10 @@
   <thead class="thead-light">
     <tr>
       <th scope="col" class="title"> 제목 </th>
-      <th scope="col" > 조회수 </th>
+      <th scope="col" class="views"> <i class="fa fa-eye" style="font-size:12px"></i> </th>
       <th scope="col" class="author"> 작성자 </th>
       <th scope="col" class="date"> 작성일 </th>
+      <th scope="col" class="likes"> <i class='far fa-thumbs-up' style='font-size:12px'></i> </th>
     </tr>
   </thead>
 
@@ -19,14 +20,12 @@
     <tr>
       <td>
         <div class="ellipsis">
-        <a href="/boards/<%= boardName + '/' + post._id %>"><%= post.title %></a>
-        <i class='far fa-thumbs-up' style='font-size:12px'></i>: <%= post.likes %>
-
+        <a href="/boards/<%= boardName + '/' + post._id %>" style="color:#000000"><%= post.title %></a>
+        <font style="color:#ff6600">[<%= post.comments %>]</font>
         </div>
-        <div class="ellipsis">댓글 수 : <%= post.comments %> </div>
       </td>
       <td>
-        <div> <i class="fa fa-eye" style="font-size:12px"></i>: <%= post.views %></div>
+        <div style="text-align:center"><%= post.views %></div>
       </td>
       <td class="author">
         <!-- 2 -->
@@ -34,6 +33,9 @@
       </td>
       <td class="date">
         <span data-date="<%= post.createdAt %>"><%= post.createdAt %></span>
+      </td>
+      <td class="likes">
+        <div class="ellipsis"><%= post.likes %></div>
       </td>
     </tr>
     <% }) %>

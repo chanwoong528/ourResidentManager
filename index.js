@@ -53,7 +53,7 @@ app.use(function(req,res,next){
   res.locals.isAuthenticated = req.isAuthenticated();
   res.locals.currentUser = req.user;
   res.locals.passKey = req.passKey;
-  res.locals.chatId = 'notification';
+  res.locals.target = '';
   res.locals.util = util;
   next();
 });

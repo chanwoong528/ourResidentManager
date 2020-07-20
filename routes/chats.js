@@ -4,27 +4,17 @@ var Chat = require('../models/Chat');
 var util = require('../util');
 var User = require('../models/User');
 var socketio = require('../libs/socket-listener');
+var Logger = require('../libs/Logger');
+var logger = new Logger();
 
 // Index
 router.get('/', util.isLoggedin, function(req, res){
   var user1 = req.user.username;
   var passKey = socketio.newPassKey(user1);
-  Chat.findAllByUsername(user1, function(err, chats){
-    if (err){
-      console.log(' ERR @ routes/chats.js');
-      console.log(err);
-      return res.redirect('/');
-    }
-    if (chats){
-      // console.log('chats?????');
-      // console.log(chats);
-      res.render('dm/index',{
-        chatId:'',
-        passKey: passKey
-      });
-    }
-  });
 
+  res.render('dm/index',{
+    passKey: passKey
+  });
 });
 
 router.get('/:username', util.isLoggedin, function(req, res) {
@@ -42,9 +32,11 @@ router.get('/:username', util.isLoggedin, function(req, res) {
   Chat.findOneByUsernames(user1,user2,function(err,chat){
     if (err) return console.log(err);
     console.log('findOne chat._id.toString() : ' + chat._id.toString());
+    logger.track(chat);
+    var passKey = socketio.newPassKey(user1);
     res.render('dm/index',{
-      chatId:chat._id.toString(),
-      users:chat.users
+      target:user2,
+      passKey:passKey,
     });
   });
 

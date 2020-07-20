@@ -1,6 +1,7 @@
 <script>
   var socket = io();
   var username = "<%= currentUser.username %>";
+  `<% console.log(passKey) %>`;
   $(".button__badge").hide();
   // socket.emit('socket init', 'notification', `<%= currentUser.username %>`);
   socket.emit ('notification init', username);
