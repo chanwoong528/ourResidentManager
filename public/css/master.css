@@ -41,6 +41,12 @@ div.about {
     }
 
 
+.minitable
+{
+
+
+}
+
 
 .board-table {
 /*  table-layout: fixed;*/
@@ -105,7 +111,6 @@ div.about {
   text-align: center;
     overflow-x: auto;
 }
-
 .board-table .author,
 .board-table .date
 {
@@ -114,6 +119,7 @@ div.about {
     overflow-x: auto;
 
 }
+
 .small {
   font-size: smaller;
   color : red;

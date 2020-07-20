@@ -50,24 +50,6 @@ router.get('/', async function(req, res) {
   });
 });
 
-// router.get('/', async function(req, res) {
-//     var count = await Post.countDocuments({
-//       board: 'free'
-//     });
-//     var frees = await Post.find({
-//         board: 'free'
-//       })
-//       .populate('author')
-//       .sort('-views')
-//       .limit(5)
-//       .exec();
-//
-//   res.render('home/welcome',{
-//     frees: frees,
-//     boardName: 'free',
-//
-//   });
-// });
 
 
 
