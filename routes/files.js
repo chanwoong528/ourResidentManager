@@ -12,7 +12,7 @@ router.get('/:serverFileName/:originalFileName', function(req, res){ // 3
         'Content-Type': 'application/octet-stream; charset=utf-8',
         'Content-Disposition': 'attachment; filename=' + encodeURI(file.originalFileName)
       });
-    
+
       stream.pipe(res);
     }
     else { // 3-4
