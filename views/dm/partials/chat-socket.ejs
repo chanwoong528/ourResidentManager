@@ -1,32 +1,36 @@
 <script>
   $(".msg_history").hide();
   $(".input_msg_write").hide();
+  var refresh = $("#refresh_i");
+  var inbox = $(".inbox_chat");
+  refresh.on("click", refreshChatList);
 
-  var chatId = "<%= chatId %>"
-    ? "<%= chatId %>"
-    : "notification";
-  var username = "<%= currentUser.username %>";
-  // loadChatDefault();
-  console.log("chatId = " + chatId);
-  console.log("username = " + username);
-
+  var target_username = `<%= target %>`;
+  var passKey = `<%= passKey %>`;
+  console.log('passKey? ' + passKey);
   $(function () {
-    socket.emit('request chat list', username);
-    function msgSendBtnPressed(event) {
+    socket.emit('request chat list', username, passKey);
+    if (target_username) socket.emit('chat init', username, target_username, passKey);
+    $(".write_msg").keyup(function(event){
+      if (event.which == 13){
+        sendMsg();
+      }
+    });
+    function sendMsg() {
       if ($('.write_msg').val() !== '' && $('.write_msg').val() !== null) {
         socket.emit('send message', {
-          'chatId': chatId,
           'username': username,
+          'target': '',
           'msg': $('.write_msg').val(),
           'date': null
-        });
+        }, passKey);
       }
       $('.write_msg').val('');
       $('.write_msg').focus();
       event.preventDefault();
     }
 
-    $('.msg_send_btn').on('click', msgSendBtnPressed);
+    $('.msg_send_btn').on('click', sendMsg);
 
     socket.on('receive msg', function(msg){
       $(".msg_history").append(msg);
@@ -34,67 +38,58 @@
     });
   });
   socket.on('chat init', function(){
-    if (chatId != 'notification') {
-      showChat();
-    }
+    showChat();
   });
+
   function showChat(){
     $("#temp").hide();
     $(".input_msg_write").show();
     $(".msg_history").show(1000);
     $(".msg_history").children().remove();
   }
-  function loadChatDefault() {
-    socket.emit('socket init', chatId, username);
-  }
-  function loadChatBySelection(elem) {
-    var cid = $(elem).attr("data-chatId");
-    chatId = cid;
-    var target_username = $(elem).attr("id");
-    socket.emit('socket init', cid, username);
-  }
-  socket.on('receive chat list', ({data}) => {
-    loadChatList(data[0], data[1], data[2], data[3], data[0] == "<%= chatId %>");
-  });
 
-  socket.on('load log', ({log}) => {
-    $(".msg_history").append(log);
+  function loadChatBySelection(elem) {
+    var active_chat = $(".active_chat");
+    active_chat.removeClass("active_chat"); // .chat_list
+    $(elem).addClass("active_chat");
+    var i = $(elem).attr("data-index"); // seems unnecessary?
+    target_username = $(elem).attr("id");
+    console.log ('$(elem).attr("id") = '+target_username);
+    socket.emit('chat init', username, target_username, passKey);
+  }
+
+  socket.on('load log', function ({recentLog}){
+    $(".msg_history").append(recentLog);
     $('.msg_history').scrollTop($('.msg_history')[0].scrollHeight);
   });
 
-  socket.on('system message', function (msg) {});
+  socket.on('system message', function (msg) {
 
-  function loadChatList(chatId, username, msg, date, active) {
-    var str_row;
-    str_row = `<div id="`;
-    str_row += username;
-    str_row += `" class="chat_list`;
-    str_row += active
-      ? ` active_chat`
-      : ``;
-    str_row += `" data-chatId="`;
-    str_row += chatId;
-    str_row += `" style="cursor: pointer;" onclick="loadChatBySelection(this)">`;
-    str_row += `<div class="chat_people">`;
-    str_row += `<div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>`;
-    str_row += `<div class="chat_ib"><h5>`;
-    str_row += username;
-    // is a string
-    str_row += `<span class="chat_date">`;
-    str_row += date ? date : ``;
-    // date would be something like Dec 23
-    str_row += `</span></h5><p>`;
-    str_row += msg ? msg : ``;
-    str_row += `</p></div></div></div>`;
-    $(".inbox_chat").append(str_row);
+  });
 
+  function refreshChatList(){
+    $(this).off("click", refreshChatList);
+    inbox.empty();
+    $("#loading").show();
+    socket.emit('request chat list', username, passKey);
+    $(this).delay(1000).on("click", refreshChatList);
   }
 
-  function toggleActive(elem) {
-    // $(".chat_list active_chat").toggleClass('chat_list');
-    $(elem).toggleClass('chat_list');
-    $(elem).toggleClass('chat_list active_chat');
+  socket.on('update chat list', function (username, msg, date) {
+    var list_item = inbox.find("#" + username);
+    list_item.find(".chat_date").html(date);
+    list_item.find("p").html(msg);
+    list_item.prependTo(inbox);
+  });
 
-  }
+  socket.on('receive chat list', ({list}) => {
+    $("#loading").hide();
+    inbox.append(list);
+    if (target_username){
+      console.log('target\'s username = ' + target_username);
+      var list_item = inbox.find("#" + target_username);
+      list_item.addClass("active_chat");
+    }
+  });
 
 </script>

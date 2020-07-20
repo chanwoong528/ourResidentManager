@@ -1,10 +1,11 @@
 <script>
   var socket = io();
+  var username = "<%= currentUser.username %>";
+  `<% console.log(passKey) %>`;
   $(".button__badge").hide();
-  console.log('isAuthenticated? ' + `<%= isAuthenticated %>`);
-  socket.emit('socket init', 'notification', `<%= currentUser %>`
-      ? `<%= currentUser.username %>`
-      : `''`);
+  // socket.emit('socket init', 'notification', `<%= currentUser.username %>`);
+  socket.emit ('notification init', username);
+
   socket.on('redirect', function () {
     socket.emit('disconnect');
     window.location.replace("../");
