@@ -3,6 +3,7 @@ var crypto = require('crypto');
 /**
  * @returns randomly generated value to be used for client-server socket interactions.
  */
+
 var algorithm = 'aes-256-ctr';
 var password = 'd6F3Efeq';
 

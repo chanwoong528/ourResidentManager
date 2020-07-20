@@ -22,6 +22,7 @@ var userSchema = mongoose.Schema({
   },
   addr:{
     type:String,
+    type:Number,
     //require:[true, 'You need to enter Detailed Address'],
 
   },
