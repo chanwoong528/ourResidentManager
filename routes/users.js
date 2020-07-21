@@ -6,14 +6,36 @@ var util = require('../util'); // 1
 
 
 // Index
-router.get('/', function(req, res){
-  User.find({})
-    .sort({username:1})
-    .exec(function(err, users){
-      if(err) return res.json(err);
-      res.render('users/index', {users:users});
+router.get('/', util.isLoggedin, function(req, res){
+
+      User.find({})
+      .sort({username:1})
+      .exec(function(err, users){
+        if(err)
+        {    //console.log("nopermssion here2");
+          return res.json(err);
+        }
+        res.render('users/index', {
+          users:users,
+        });
     });
-});
+  });
+
+//update verified
+  router.get('/verified/:username', async function(req, res){
+
+
+  var user =  await User.findOne({username:req.params.username})
+            .exec();
+            //console.log('user:'+user);
+            user.verified = true;
+            user.save();
+            //console.log('user:'+user);
+
+  res.redirect('/users');
+
+  });
+
 
 // New
 router.get('/new', function(req, res){

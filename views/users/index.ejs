@@ -10,20 +10,52 @@
 
       <h3 class="mb-3">Users</h3>
 
-      <ul class="list-group">
+<table class="board-table table table-sm border-bottom">
+<thead class="thead-light">
+  <tr>
+    <th scope="col" class = "username"> 아이디 </th>
+    <th scope="col" class = "name" > 이름 </th>
+    <th scope="col" class = "verified"> 인증 </th>
+    <th scope="col" class = "addr"> 주소 </th>
+  </tr>
+</thead>
+      <tbody>
         <% if(users == null || users.length == 0){ %>
-          <li class="list-group-item"> There is no user yet.</div>
+          <tr>
+          <td> There is no user yet.</td>
+          </tr>
         <% } %>
         <% users.forEach(function(user) { %>
-          <li class="list-group-item">
-            <a href="/users/<%= user.username %>"><%= user.username %></a>
-          </br>
-            
-          </li>
+          <tr>
+            <td class= "username">
+              <div class="ellipsis">
+                <%= user.username %>
+              </div>
+
+            </td>
+            <td class="name">
+              <div class="ellipsis">
+              <%= user.name %>
+                </div>
+            </td>
+
+      <form action="/users/verified/<%= user.username %>?_method=put" method="post">
+            <td class="verified" >
+              <div class="ellipsis">
+
+                <a class="btn btn-primary" href = "/users/verified/<%=user.username%>">  <%= user.verified %></a>
+                </div>
+              </td>
+            </form>
+            <td class= "addr">
+              <div class="ellipsis"><%= user.addr %>
+              </div>
+            </td>
+          </tr>
 
         <% }) %>
-      </ul>
-
+      </tbody>
+</table>
     </div>
   </body>
 </html>
