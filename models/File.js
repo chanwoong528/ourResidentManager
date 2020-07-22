@@ -34,6 +34,13 @@ fileSchema.methods.getFileStream = function(){
   return stream; // 5-5
 };
 
+fileSchema.methods.bytesConversion = function(){
+  var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  var bytes = this.size;
+  if (bytes == 0) return '0 Byte';
+  var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+  return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+}
 
 // model & export
 var File = mongoose.model('file', fileSchema);
