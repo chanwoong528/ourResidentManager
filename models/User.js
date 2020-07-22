@@ -22,7 +22,6 @@ var userSchema = mongoose.Schema({
   },
   addr:{
     type:String,
-    type:Number,
     //require:[true, 'You need to enter Detailed Address'],
 
   },
@@ -38,6 +37,11 @@ var userSchema = mongoose.Schema({
   },
   email_verified :{
       type: Boolean, default: false
+  },
+  verified:
+  {
+    type: Boolean, default :false
+
   },
   key_for_verify :{ type: String},
   activeChats:[{
