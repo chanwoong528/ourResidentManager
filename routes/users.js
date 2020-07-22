@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var User = require('../models/User');
-var util = require('../util'); // 1
+var util = require('../libs/util'); // 1
 
 
 

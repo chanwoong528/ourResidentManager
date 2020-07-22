@@ -5,16 +5,13 @@ var Notice = require('../models/Notice');
 var Free = require('../models/Free');
 var Trade = require('../models/Trade');
 var Comment = require('../models/Comment');
-var util = require('../util');
+var util = require('../libs/util');
 var User = require('../models/User');
 
 //file upload
 var multer = require('multer'); // 1
 var upload = multer({ dest: 'uploadedFiles/' }); // 2
 var File = require('../models/File'); // 3
-
-
-
 
 // Index
 router.get('/:boardName', async function(req, res) {
