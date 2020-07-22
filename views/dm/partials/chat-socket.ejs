@@ -1,8 +1,14 @@
 <script>
-  $(".msg_history").hide();
-  $(".input_msg_write").hide();
+  var msg_history = $(".msg_history");
+  var input_msg_write = $(".input_msg_write");
+  msg_history.hide();
+  input_msg_write.hide();
+
+  var write_msg = $(".write_msg");
   var refresh = $("#refresh_i");
   var inbox = $(".inbox_chat");
+  var msg_send_btn = $('.msg_send_btn');
+
   refresh.on("click", refreshChatList);
 
   var target_username = `<%= target %>`;
@@ -11,30 +17,30 @@
   $(function () {
     socket.emit('request chat list', username, passKey);
     if (target_username) socket.emit('chat init', username, target_username, passKey);
-    $(".write_msg").keyup(function(event){
+    write_msg.keyup(function(event){
       if (event.which == 13){
         sendMsg();
       }
     });
     function sendMsg() {
-      if ($('.write_msg').val() !== '' && $('.write_msg').val() !== null) {
+      if (write_msg.val() !== '' && write_msg.val() !== null) {
         socket.emit('send message', {
           'username': username,
           'target': '',
-          'msg': $('.write_msg').val(),
+          'msg': write_msg.val(),
           'date': null
         }, passKey);
       }
-      $('.write_msg').val('');
-      $('.write_msg').focus();
+      write_msg.val('');
+      write_msg.focus();
       event.preventDefault();
     }
 
-    $('.msg_send_btn').on('click', sendMsg);
+    msg_send_btn.on('click', sendMsg);
 
     socket.on('receive msg', function(msg){
-      $(".msg_history").append(msg);
-      $('.msg_history').scrollTop($('.msg_history')[0].scrollHeight);
+      msg_history.append(msg);
+      msg_history.scrollTop(msg_history[0].scrollHeight);
     });
   });
   socket.on('chat init', function(){
@@ -43,9 +49,9 @@
 
   function showChat(){
     $("#temp").hide();
-    $(".input_msg_write").show();
-    $(".msg_history").show(1000);
-    $(".msg_history").children().remove();
+    input_msg_write.show();
+    msg_history.show(1000);
+    msg_history.children().remove();
   }
 
   function loadChatBySelection(elem) {
@@ -54,17 +60,12 @@
     $(elem).addClass("active_chat");
     var i = $(elem).attr("data-index"); // seems unnecessary?
     target_username = $(elem).attr("id");
-    console.log ('$(elem).attr("id") = '+target_username);
     socket.emit('chat init', username, target_username, passKey);
   }
 
   socket.on('load log', function ({recentLog}){
-    $(".msg_history").append(recentLog);
-    $('.msg_history').scrollTop($('.msg_history')[0].scrollHeight);
-  });
-
-  socket.on('system message', function (msg) {
-
+    msg_history.append(recentLog);
+    msg_history.scrollTop(msg_history[0].scrollHeight);
   });
 
   function refreshChatList(){

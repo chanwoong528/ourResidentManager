@@ -8,8 +8,6 @@ var kg = require('../libs/keygen');
 
 var online_users = {}; // {username:{socket.id: chatId}} // user with socket.id currently in 'chatId' room
 var passKey = {}; // {username:key} // user's current passKey
-
-var chats = {}; // {chatId:[username]} //
 var chatRef = {}; // {username:{index:chatId,}}
 
 var notify = {}; // {username:boolean}
@@ -156,12 +154,6 @@ module.exports.listen = function(server) {
     }
     online_users[username] = item;
     socket.join(chatId);
-    if (!chats[chatId]) {
-      chats[chatId] = new Array();
-    }
-    if (!chats[chatId].includes(username)) {
-      chats[chatId].push(username);
-    }
   }
 
   /**
@@ -175,11 +167,6 @@ module.exports.listen = function(server) {
     if (username) {
       chatId = online_users[username][sid];
       delete online_users[username];
-      // var chat = chats[chatId];
-      // if (chat){
-      //   var i = chats[chatId].indexOf(username);
-      //   if (i != -1) chats[chatId].splice(i,1);
-      // }
 
     }
     return chatId;
@@ -193,25 +180,18 @@ module.exports.listen = function(server) {
     socket.to(cid).emit('update chat list', updated.username, updated.msg, updated.date);
   }
 
-  /**
-   * @WIP
-   */
-  function notifyAll(chatId, sentBy) {
-    // console.log (chats);
-    chats[chatId].forEach((user, i) => { // for every user in chat
-      console.log('@ notifyAll, chats[chatId] = ' + user);
-      if (user != sentBy) { // except the sender
-        notify[user] = true;
-        console.log('  -- notify[' + user + '] = ' + notify[user]);
-        if (online_users[user]) { // if this user is online
-          var socketId = check_key('notification', online_users[user]);
-          if (socketId != '') { // if the user is in 'notification' channel,
-            io.to(socketId).emit('receive notification');
-            console.log(' @ notifyAll, receive notification triggered.');
-          }
+  function notifyAll (chatId, username){
+    var members = logger.getChatMembers(chatId,username);
+    if (members){
+      members.forEach((member, i) => {
+        if (member != username){
+          var sid = check_key('notification', online_users[member]);
+          notify[member] = true;
+          if (sid != '') io.to(sid).emit('receive notification');
         }
-      }
-    });
+      });
+
+    }
   }
 
   function checkNotification(socket) {
