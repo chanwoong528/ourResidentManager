@@ -54,10 +54,14 @@ router.get('/:boardName/new', util.isLoggedin, function(req, res) {
   var postType = boardName.slice(0, -1);
   var post = req.flash(postType)[0] || {};
   var errors = req.flash('errors')[0] || {};
+
   if(boardName =='notices'&& !req.user.isAdmin)
   {
     return util.noPermission(req, res);
-
+  }
+  else if(boardName =='trades'&&!req.user.verified)
+  {
+    return util.isVerified(req, res);
   }
   else{
   res.render('boards/' + boardName + '/new', {

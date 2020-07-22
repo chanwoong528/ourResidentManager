@@ -17,7 +17,33 @@ util.parseError = function(errors) {
   }
   return parsed;
 };
+  //for admin
+  util.isAdmin = function(req, res, next){
+  if(req.user.isAdmin)
+  {
+    next();
+  }
+  else {
+    req.flash('errors', {login:'관리자만 이용하실 수 있습니다.'});
+    req.logout();
+    res.redirect('/login');
+  }
+  };
+  util.isVerified = function(req, res, next)
+  {
+    if(req.user.verified)
+    {
+      next();
+    }
+    else
+    {
+      req.flash('errors', {login:'인증된 사용자만 직거래 게시판을 이용할 수 있습니다.'});
+      req.logout();
+      res.redirect('/login');
 
+    }
+
+  };
 
 util.isLoggedin = function(req, res, next){
   if(req.isAuthenticated()){

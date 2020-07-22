@@ -6,14 +6,41 @@ var util = require('../util'); // 1
 
 
 // Index
-router.get('/', function(req, res){
-  User.find({})
-    .sort({username:1})
-    .exec(function(err, users){
-      if(err) return res.json(err);
-      res.render('users/index', {users:users});
+router.get('/', util.isLoggedin, function(req, res){
+
+      User.find({})
+      .sort({username:1})
+      .exec(function(err, users){
+        if(err)
+        {    //console.log("nopermssion here2");
+          return res.json(err);
+        }
+        res.render('users/index', {
+          users:users,
+        });
     });
+  });
+
+
+  // destroy
+  router.get('/delete/:username',  function(req, res){
+
+        User.deleteOne({username:req.params.username}, function(err){
+        if(err) return res.json(err);
+
+    res.redirect('/users');
+  });
 });
+//update verified
+router.get('/verified/:username', async function(req, res){
+  var user =  await User.findOne({username:req.params.username})
+            .exec();
+            //console.log('user:'+user);
+            user.verified = true;
+            user.save();
+            //console.log('user:'+user);
+  res.redirect('/users');
+  });
 
 // New
 router.get('/new', function(req, res){
@@ -96,13 +123,7 @@ router.put("/:username", util.isLoggedin, checkPermission, function(req, res, ne
 
 
 
-// destroy
-router.delete('/:username', function(req, res){
-  User.deleteOne({username:req.params.username}, function(err){
-    if(err) return res.json(err);
-    res.redirect('/users');
-  });
-});
+
 
 module.exports = router;
 
