@@ -1,4 +1,6 @@
 # .ignore
 
+
+.DS_Store
 node_modules
 uploadedFiles # 1

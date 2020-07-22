@@ -43,6 +43,10 @@ var userSchema = mongoose.Schema({
     type: Boolean, default :false
 
   },
+  suspended:
+  {
+    type: Boolean, default : false
+  },
   key_for_verify :{ type: String},
   activeChats:[{
     type:mongoose.Schema.Types.ObjectId,

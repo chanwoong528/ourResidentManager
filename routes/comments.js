@@ -5,7 +5,7 @@ var Post = require('../models/Post');
 var util = require('../util');
 
 // create
-router.post('/', util.isLoggedin, checkPostId, function(req, res) {
+router.post('/', util.isLoggedin, util.isSuspended, checkPostId, function(req, res) {
   var post = res.locals.post;
   req.body.author = req.user._id;
   req.body.post = post._id;
