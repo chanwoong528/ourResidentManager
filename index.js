@@ -54,7 +54,6 @@ app.use(function(req,res,next){
   res.locals.currentUser = req.user;
   res.locals.passKey = req.passKey;
   res.locals.target = '';
-  res.locals.util = util;
   next();
 });
 
@@ -65,6 +64,9 @@ app.use('/dm', require('./routes/chats'));
 app.use('/boards', util.getPostQueryString, require('./routes/posts'));
 app.use('/comments', util.getPostQueryString, require('./routes/comments'));
 app.use('/files', require('./routes/files'));
+app.get('*', function(req, res){
+  res.status(404).send('<b>404: Not Found</b>');
+});
 
 // Port setting
 var port = process.env.PORT || 3000;

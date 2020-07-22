@@ -1,8 +1,8 @@
 <script>
   var socket = io();
   var username = "<%= currentUser.username %>";
-  `<% console.log(passKey) %>`;
-  $(".button__badge").hide();
+  var bb = $(".button__badge");
+  bb.hide();
   // socket.emit('socket init', 'notification', `<%= currentUser.username %>`);
   socket.emit ('notification init', username);
 
@@ -11,10 +11,10 @@
     window.location.replace("../");
   });
   socket.on('receive notification', function(){
-    $(".button__badge").show();
+    bb.show();
   });
   function clearNotification(){
-    $(".button__badge").hide();
+    bb.hide();
     socket.emit('clear notification');
   }
 </script>

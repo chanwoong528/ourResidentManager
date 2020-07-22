@@ -4,23 +4,15 @@ var User = require('../models/User');
 var escapeUtil = require('./escapeUtil');
 var dateUtil = require('./dateUtil');
 var mustache = require('mustache');
+var qs = require('./quick-sorter');
 
 var Logger = function() {
-  // logMap looks like this:
-  // {
-  //   yourChatId:[
-  //     {username:"donkim1212", msg:"Hello, world!", date:1232131},
-  //     {username:"moon528", msg:"foo, bar", date:1232132},
-  //     ...
-  //   ],
-  //   anotherChatId:[
-  //     ...
-  //   ]
-  //   ...
-  // }
+
 };
-Logger.prototype.logMap = {}; // {chatId:[{username, msg, date},]}
-Logger.prototype.chatListByUser = {}; // {username:{target:chatId,}}
+
+Logger.prototype.logMap = {}; // {chatId:[{username:, msg:, date:},],}
+Logger.prototype.chatListByUser = {}; // {username:{target:chatId,},}
+Logger.prototype.chatMembers = {}; // {username:[member1, member2,],}
 
 Logger.prototype.init = async function() {
   try {
@@ -38,18 +30,34 @@ Logger.prototype.getChatList = function(username) {
   Logger.prototype.getDBChatList(username); // this refreshes chatListByUser[username]
   // }
   var data = Logger.prototype.chatListByUser[username]; // {target:chatId, ...}
-  var ret = '';
+  var arr = new Array();
+  var mirror = new Array();
   for (var target in data) {
     var target_username = target;
     var chatId = data[target];
     var log = Logger.prototype.getLastLog(chatId); // {msg, date, stamp}
-
-    // TODO: sort chat list (chat w/ most recent msg loads first)
-
-    ret += Logger.prototype.buildChatList(target_username, log.msg, log.date);
-
+    var built = Logger.prototype.buildChatList(target_username, log.msg, log.date);
+    var mirror_date = log.date?log.date:-1;
+    if (!arr[0]) {
+      arr.push(built);
+      mirror.push(mirror_date);
+    } else if (mirror[0] <= mirror_date) {
+      arr.unshift(built);
+      mirror.unshift(mirror_date);
+    } else if (mirror[mirror.length - 1] >= mirror_date){
+      arr.push(built);
+      mirror.push(mirror_date);
+    } else {
+      for (var i = 0; i <= mirror.length -1; i++) {
+        if (mirror[i] >= mirror_date && mirror_date >= mirror[i+1]){
+          arr.splice(i+1,0,built);
+          mirror.splice(i+1,0,mirror_date);
+          break;
+        }
+      }
+    }
   }
-  return ret;
+  return arr.join('');
 }
 
 Logger.prototype.getDBChatList = function(username){
@@ -98,6 +106,11 @@ Logger.prototype.getChatId = async function(username, target) {
   return chatId;
 }
 
+Logger.prototype.getChatMembers = function(chatId, username){
+  if (!chatId || !Logger.prototype.chatMembers[chatId]) return '';
+  return Logger.prototype.chatMembers[chatId];
+}
+
 Logger.prototype.track = function(chat) {
   var chatId = chat._id.toString();
   var user1 = chat.users[0];
@@ -105,7 +118,14 @@ Logger.prototype.track = function(chat) {
   // var log = chat.log;
   if (!Logger.prototype.logMap[chatId]) {
     Logger.prototype.logMap[chatId] = new Array();
-    // if (log) { // add log to logMap }
+    // if (log) {
+    //   // if there is DB log, add them to logMap
+    // }
+  }
+  if (!Logger.prototype.chatMembers[chatId]) {
+    Logger.prototype.chatMembers[chatId] = new Array();
+    Logger.prototype.chatMembers[chatId].push(user1);
+    Logger.prototype.chatMembers[chatId].push(user2);
   }
   if (!Logger.prototype.chatListByUser[user1]) {
     Logger.prototype.chatListByUser[user1] = {};
