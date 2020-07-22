@@ -9,9 +9,17 @@ util.parseError = function(errors) {
       parsed[name] = { message:validationError.message };
     }
   }
-  else if(errors.code == '11000' || errors.errmsg.indexOf('username') > 0) {
-    parsed.username = { message:'아이디가 중복됩니다.' };
+  else if(errors.code == '11000' ) {
+      if( errors.errmsg.indexOf('username') > 0)
+      {
+        parsed.username = { message:'아이디가 중복됩니다.' };
+      }
+      if(errors.errmsg.indexOf('email') > 0)
+      {
+      parsed.email = {message:'이메일 중복됩니다'};
+      }
   }
+
   else {
     parsed.unhandled = JSON.stringify(errors);
   }

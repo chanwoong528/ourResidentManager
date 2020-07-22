@@ -6,7 +6,7 @@ var util = require('../util'); // 1
 
 
 // Index
-router.get('/', util.isLoggedin, function(req, res){
+router.get('/', util.isLoggedin, util.isAdmin, function(req, res){
 
       User.find({})
       .sort({username:1})
@@ -23,7 +23,7 @@ router.get('/', util.isLoggedin, function(req, res){
 
 
   // destroy
-  router.get('/delete/:username',  function(req, res){
+  router.get('/delete/:username', util.isAdmin,  function(req, res){
 
         User.deleteOne({username:req.params.username}, function(err){
         if(err) return res.json(err);
@@ -33,7 +33,7 @@ router.get('/', util.isLoggedin, function(req, res){
 });
 
 //suspended
-router.get('/suspended/:username', async function(req, res){
+router.get('/suspended/:username', util.isAdmin, async function(req, res){
   var user =  await User.findOne({username:req.params.username})
             .exec();
             //console.log('user:'+user);
@@ -43,7 +43,7 @@ router.get('/suspended/:username', async function(req, res){
   res.redirect('/users');
   });
   //unsuspended
-  router.get('/unsuspended/:username', async function(req, res){
+  router.get('/unsuspended/:username', util.isAdmin, async function(req, res){
     var user =  await User.findOne({username:req.params.username})
               .exec();
               //console.log('user:'+user);
@@ -55,7 +55,7 @@ router.get('/suspended/:username', async function(req, res){
 
 
 //update verified
-  router.get('/verified/:username', async function(req, res){
+  router.get('/verified/:username', util.isAdmin, async function(req, res){
   var user =  await User.findOne({username:req.params.username})
             .exec();
             //console.log('user:'+user);
