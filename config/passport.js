@@ -31,7 +31,7 @@ passport.use('local-login',
           }
           else {
             req.flash('username', username);
-            req.flash('errors', {login:'The username or password is incorrect.'});
+            req.flash('errors', {login:'아이디나 비밀번호가 일치하지 않습니다.'});
             return done(null, false, null);
           }
         });

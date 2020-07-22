@@ -58,7 +58,7 @@ app.use(function(req,res,next){
 
 // Routes
 app.use('/', require('./routes/home'));
-app.use('/users', util.isAdmin, require('./routes/users'));
+app.use('/users', require('./routes/users'));
 app.use('/dm', require('./routes/chats'));
 app.use('/boards', util.getPostQueryString, require('./routes/posts'));
 app.use('/comments', util.getPostQueryString, require('./routes/comments'));

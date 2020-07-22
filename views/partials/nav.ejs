@@ -15,12 +15,13 @@
         <li class="nav-item"><a href="/about" class="nav-link">About</a></li>
         <li class="nav-item"><a href="/boards/notices" class="nav-link">공지사항</a></li>
         <li class="nav-item"><a href="/boards/frees" class="nav-link">자유 게시판</a></li>
-        <li class="nav-item"><a href="/boards/trades" class="nav-link">직거래</a></li>
+        <li class="nav-item"><a href="/boards/trades" class="nav-link">장터</a></li>
 
       </ul>
       <ul class="navbar-nav ml-auto">
+
         <% if(isAuthenticated){ %>
-        <!-- 1 -->
+
         <% if(currentUser.isAdmin){ %>
           <li class="nav-item"><a href="/users" class="nav-link">관리자 페이지</a></li>
           <% } %>
@@ -32,13 +33,17 @@
           </a>
           <%- include('./socket') %>
         </li>
-        <li class="nav-item"><a href="/users/<%= currentUser.username %>" class="nav-link">My Account</a></li>
+        <li class="nav-item"><a href="/users/<%= currentUser.username %>" class="nav-link">나의 계정</a></li>
         <li class="nav-item"><a href="/logout" class="nav-link">로그아웃</a></li>
-
+        <% if(currentUser.suspended){ %>
+            <li class="nav-item"><a class="nav-link" style = 'color:red'>
+              <i class='fas fa-ban'style='color:red'></i>정지된 유저</a></li>
+          <% } %>
         <% } else { %>
         <li class="nav-item"><a href="/users/new" class="nav-link">회원가입</a></li>
         <li class="nav-item"><a href="/login" class="nav-link">로그인</a></li>
         <% } %>
+
       </ul>
     </div>
   </div>
