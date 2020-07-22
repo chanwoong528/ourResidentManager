@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var Comment = require('../models/Comment');
 var Post = require('../models/Post');
-var util = require('../util');
+var util = require('../libs/util');
 
 // create
 router.post('/', util.isLoggedin, util.isSuspended, checkPostId, function(req, res) {

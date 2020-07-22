@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var Chat = require('../models/Chat');
-var util = require('../util');
+var util = require('../libs/util');
 var User = require('../models/User');
 var socketio = require('../libs/socket-listener');
 var Logger = require('../libs/Logger');
@@ -13,7 +13,8 @@ router.get('/', util.isLoggedin, function(req, res){
   var passKey = socketio.newPassKey(user1);
 
   res.render('dm/index',{
-    passKey: passKey
+    passKey: passKey,
+    target:''
   });
 });
 

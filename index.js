@@ -7,7 +7,7 @@ var flash = require('connect-flash'); // npm
 var session = require('express-session'); // npm
 var passport = require('./config/passport');//npm
 
-var util = require('./util');
+var util = require('./libs/util');
 
 
 var crypto = require('crypto');
@@ -53,7 +53,6 @@ app.use(function(req,res,next){
   res.locals.isAuthenticated = req.isAuthenticated();
   res.locals.currentUser = req.user;
   res.locals.passKey = req.passKey;
-  res.locals.target = '';
   next();
 });
 
