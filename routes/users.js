@@ -29,10 +29,33 @@ router.get('/', util.isLoggedin, function(req, res){
         if(err) return res.json(err);
 
     res.redirect('/users');
-  });
+  })
 });
+
+//suspended
+router.get('/suspended/:username', async function(req, res){
+  var user =  await User.findOne({username:req.params.username})
+            .exec();
+            //console.log('user:'+user);
+            user.suspended = true;
+            user.save();
+            //console.log('user:'+user);
+  res.redirect('/users');
+  });
+  //unsuspended
+  router.get('/unsuspended/:username', async function(req, res){
+    var user =  await User.findOne({username:req.params.username})
+              .exec();
+              //console.log('user:'+user);
+              user.suspended = false;
+              user.save();
+              //console.log('user:'+user);
+    res.redirect('/users');
+    });
+
+
 //update verified
-router.get('/verified/:username', async function(req, res){
+  router.get('/verified/:username', async function(req, res){
   var user =  await User.findOne({username:req.params.username})
             .exec();
             //console.log('user:'+user);

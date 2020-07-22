@@ -17,7 +17,20 @@ util.parseError = function(errors) {
   }
   return parsed;
 };
-  //for admin
+  util.isSuspended = function(req, res, next)
+  {
+    if(!req.user.suspended)
+    {
+      next();
+    }
+    else{
+
+      req.flash('errors', {login:'정지된 사용자는 이용하실 수 없습니다.'});
+
+      return res.redirect('/login');
+
+    }
+  };
   util.isAdmin = function(req, res, next){
   if(req.user.isAdmin)
   {
