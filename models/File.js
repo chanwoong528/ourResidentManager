@@ -22,6 +22,7 @@ if(isBoxEnabled){
 // schema
 var fileSchema = mongoose.Schema({ // 1
   originalFileName:{type:String},
+  serverFileId:{type:String},
   serverFileName:{type:String},
   size:{type:Number},
   uploadedBy:{type:mongoose.Schema.Types.ObjectId, ref:'user', required:true},
@@ -39,7 +40,6 @@ fileSchema.methods.processDelete = function(){ // 4
 fileSchema.methods.getFileStream = async function(){
   if(isBoxEnabled){
     try{ // using box.com
-      console.log(client);
       var stream = await client.files.getReadStream(this.serverFileId);
     }
     catch(err){
@@ -50,8 +50,7 @@ fileSchema.methods.getFileStream = async function(){
       if (err.statusCode == 405){
         console.log('405 405 405 405 405');
         err.stack;
-}
-      console.log("알아볼수있게");
+      }
       throw(err.statusCode);
     }
     return stream;

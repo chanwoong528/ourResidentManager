@@ -55,21 +55,18 @@ router.get('/:boardName/new', util.isLoggedin, util.isSuspended, function(req, r
   var post = req.flash(postType)[0] || {};
   var errors = req.flash('errors')[0] || {};
 
-  if(boardName =='notices'&& !req.user.isAdmin)
-  {
+  if (boardName == 'notices' && !req.user.isAdmin) {
     return util.noPermission(req, res);
-  }
-  else if(boardName =='trades'&&!req.user.verified)
-  {
+  } else if (boardName == 'trades' && !req.user.verified) {
     return util.isVerified(req, res);
-  }
-  else{
-  res.render('boards/' + boardName + '/new', {
-    post: post,
-    boardName: boardName,
-    errors: errors
+  } else {
+    res.render('boards/' + boardName + '/new', {
+      post: post,
+      boardName: boardName,
+      errors: errors
 
-  });}
+    });
+  }
 });
 
 // create
@@ -77,67 +74,32 @@ router.post('/:boardName', util.isLoggedin, util.isSuspended, upload.single('att
   var boardName = req.params.boardName;
   var postType = boardName.slice(0, -1);
   var attachment;
- try{
-   attachment = req.file?await File.createNewInstance(req.file, req.user._id):undefined;
- }
- catch(err){
-   return res.json(err);
- }
- req.body.attachment = attachment;
+  try {
+    attachment = req.file ? await File.createNewInstance(req.file, req.user._id) : undefined;
+  } catch (err) {
+    return res.json(err);
+  }
+  req.body.attachment = attachment;
 
 
   req.body.author = req.user._id;
-
   switch (boardName) {
     case 'notices':
 
       Notice.create(req.body, function(err, post) {
-
-
-        if(attachment){                 // 4-4
-          attachment.postId = post._id; // 4-4
-          attachment.save();
-                  // 4-4
-          }
-
-
-
-        createHelper(err, req, res);
-
-
-
+        createHelper(err, req, res, post, attachment);
       });
       break;
     case 'frees':
       Free.create(req.body, function(err, post) {
-
-        if(attachment){                 // 4-4
-          attachment.postId = post._id; // 4-4
-          attachment.save();
-                  // 4-4
-          }
-
-        createHelper(err, req, res);
-
-
+        createHelper(err, req, res, post, attachment);
 
       });
       break;
 
     case 'trades':
       Trade.create(req.body, function(err, post) {
-
-
-        if(attachment){                 // 4-4
-          attachment.postId = post._id; // 4-4
-          attachment.save();
-                  // 4-4
-          }
-      createHelper(err, req, res);
-
-
-
-
+        createHelper(err, req, res, post, attachment);
       });
       break;
 
@@ -172,20 +134,20 @@ router.get('/:boardName/:id', function(req, res) {
         _id: req.params.id
       }).populate({
         path: 'author',
-        select: ['name','username']
-      }).populate({path:'attachment',match:{isDeleted:false}}),
+        select: ['name', 'username']
+      }).populate({ path: 'attachment', match: { isDeleted: false } }),
       Comment.find({
         post: req.params.id
       }).sort('createdAt').populate({
         path: 'author',
-        select: ['name','username']
+        select: ['name', 'username']
       })
     ])
     .then(([post, comments]) => {
       var liked = false;
 
-        post.views++; // 2
-        post.save();
+      post.views++; // 2
+      post.save();
       // console.log('req.user = ' + req.user);
       if (req.user) {
         var arr = post.likedPerson;
@@ -278,28 +240,28 @@ router.delete('/:boardName/:id', util.isLoggedin, checkPermission, function(req,
 
 //likes
 router.post('/:boardName/:id/likes', util.isLoggedin, function(req, res) {
-    var boardName = req.params.boardName;
-    var postType = boardName.slice(0, -1);
-    Post.findOne({
-      _id: req.params.id
-    }, function(err, post) {
-      if (err) {
-        console.log(err);
-        return res.status(500).send('Something went wrong!');
-      } else {
-        var arr = post.likedPerson;
-        var userName = arr.find(element => element.equals(req.user._id));
-        if (userName === undefined) {
-          post.likedPerson.push(req.user._id);
-          post.likes += 1;
-          post.save(function(err) {
-            if (err) return res.status(500).send('Something went wrong!');
-          });
-        }
+  var boardName = req.params.boardName;
+  var postType = boardName.slice(0, -1);
+  Post.findOne({
+    _id: req.params.id
+  }, function(err, post) {
+    if (err) {
+      console.log(err);
+      return res.status(500).send('Something went wrong!');
+    } else {
+      var arr = post.likedPerson;
+      var userName = arr.find(element => element.equals(req.user._id));
+      if (userName === undefined) {
+        post.likedPerson.push(req.user._id);
+        post.likes += 1;
+        post.save(function(err) {
+          if (err) return res.status(500).send('Something went wrong!');
+        });
       }
-      return res.redirect('/boards/' + boardName + '/' + req.params.id);
-    });
+    }
+    return res.redirect('/boards/' + boardName + '/' + req.params.id);
   });
+});
 
 module.exports = router;
 
@@ -314,7 +276,7 @@ function checkPermission(req, res, next) {
   });
 }
 
-function createHelper(err, req, res) {
+function createHelper(err, req, res, post, attachment) {
   var boardName = req.params.boardName;
   var postType = boardName.slice(0, -1);
   if (err) {
@@ -322,5 +284,10 @@ function createHelper(err, req, res) {
     req.flash('errors', util.parseError(err));
     return res.redirect('/boards/' + boardName + '/new');
   }
-  res.redirect('/boards/' + boardName);
+  if (attachment) { // 4-4
+    attachment.postId = post._id; // 4-4
+    attachment.save();
+    // 4-4
+  }
+  return res.redirect('/boards/' + boardName);
 }
