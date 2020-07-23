@@ -88,7 +88,7 @@ router.post('/', function(req, res){
       return res.redirect('/users/new');
     }
 
-    res.redirect('/users');
+    res.redirect('/');
   });
 });
 
