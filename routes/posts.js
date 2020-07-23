@@ -76,8 +76,14 @@ router.get('/:boardName/new', util.isLoggedin, util.isSuspended, function(req, r
 router.post('/:boardName', util.isLoggedin, util.isSuspended, upload.single('attachment'), async function(req, res) {
   var boardName = req.params.boardName;
   var postType = boardName.slice(0, -1);
-  var attachment = req.file?await File.createNewInstance(req.file,req.user._id):undefined;
-  req.body.attachment = attachment;
+  var attachment;
+ try{
+   attachment = req.file?await File.createNewInstance(req.file, req.user._id):undefined;
+ }
+ catch(err){
+   return res.json(err);
+ }
+ req.body.attachment = attachment;
 
 
   req.body.author = req.user._id;
@@ -87,34 +93,57 @@ router.post('/:boardName', util.isLoggedin, util.isSuspended, upload.single('att
 
       Notice.create(req.body, function(err, post) {
 
+
+        if(attachment){                 // 4-4
+          attachment.postId = post._id; // 4-4
+          attachment.save();
+                  // 4-4
+          }
+
+
+
         createHelper(err, req, res);
+
+
 
       });
       break;
     case 'frees':
       Free.create(req.body, function(err, post) {
+
+        if(attachment){                 // 4-4
+          attachment.postId = post._id; // 4-4
+          attachment.save();
+                  // 4-4
+          }
+
         createHelper(err, req, res);
+
+
+
       });
       break;
+
     case 'trades':
-
-
       Trade.create(req.body, function(err, post) {
-      console.log('123');
+
+
+        if(attachment){                 // 4-4
+          attachment.postId = post._id; // 4-4
+          attachment.save();
+                  // 4-4
+          }
       createHelper(err, req, res);
 
-      console.log('before file getin');
+
+
 
       });
       break;
 
     default:
   }
-  if(attachment){                 // 4-4
-    attachment.postId = post._id; // 4-4
-    attachment.save();
-            // 4-4
-    }
+
 
 
 
@@ -248,8 +277,7 @@ router.delete('/:boardName/:id', util.isLoggedin, checkPermission, function(req,
 });
 
 //likes
-router.post('/:boardName/:id/likes', util.isLoggedin,
-  function(req, res) {
+router.post('/:boardName/:id/likes', util.isLoggedin, function(req, res) {
     var boardName = req.params.boardName;
     var postType = boardName.slice(0, -1);
     Post.findOne({
