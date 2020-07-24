@@ -171,6 +171,9 @@ function parseError(errors){
 function checkPermission(req, res, next){
  User.findOne({username:req.params.username}, function(err, user){
   if(err) return res.json(err);
+console.log('user.id:'+user.id);
+console.log('req.user.id:'+req.user.id);
+
   if(user.id != req.user.id) return util.noPermission(req, res);
 
   next();

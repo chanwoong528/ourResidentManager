@@ -32,7 +32,7 @@ util.parseError = function(errors) {
       next();
     }
     else{
-
+      req.logout();
       req.flash('errors', {login:'정지된 사용자는 이용하실 수 없습니다.'});
 
       return res.redirect('/login');
