@@ -23,6 +23,7 @@ if(isBoxEnabled){
 var fileSchema = mongoose.Schema({ // 1
   originalFileName:{type:String},
   serverFileName:{type:String},
+  serverFileId:{type:String},
   size:{type:Number},
   uploadedBy:{type:mongoose.Schema.Types.ObjectId, ref:'user', required:true},
   postId:{type:mongoose.Schema.Types.ObjectId, ref:'post'},
@@ -48,11 +49,12 @@ fileSchema.methods.getFileStream = async function(){
         this.processDelete();
       }
       if (err.statusCode == 405){
+
         console.log('405 405 405 405 405');
         err.stack;
-}
-      console.log("알아볼수있게");
-      throw(err.statusCode);
+      }
+        console.log("알아볼수있게");
+        throw(err.statusCode);
     }
     return stream;
   }

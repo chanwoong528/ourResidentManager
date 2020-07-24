@@ -94,11 +94,6 @@ router.post('/:boardName', util.isLoggedin, util.isSuspended, upload.single('att
       Notice.create(req.body, function(err, post) {
 
 
-        if(attachment){                 // 4-4
-          attachment.postId = post._id; // 4-4
-          attachment.save();
-                  // 4-4
-          }
 
 
 
@@ -111,11 +106,7 @@ router.post('/:boardName', util.isLoggedin, util.isSuspended, upload.single('att
     case 'frees':
       Free.create(req.body, function(err, post) {
 
-        if(attachment){                 // 4-4
-          attachment.postId = post._id; // 4-4
-          attachment.save();
-                  // 4-4
-          }
+
 
         createHelper(err, req, res);
 
@@ -128,11 +119,7 @@ router.post('/:boardName', util.isLoggedin, util.isSuspended, upload.single('att
       Trade.create(req.body, function(err, post) {
 
 
-        if(attachment){                 // 4-4
-          attachment.postId = post._id; // 4-4
-          attachment.save();
-                  // 4-4
-          }
+
       createHelper(err, req, res);
 
 
@@ -143,7 +130,11 @@ router.post('/:boardName', util.isLoggedin, util.isSuspended, upload.single('att
 
     default:
   }
-
+  if(attachment){                 // 4-4
+    attachment.postId = post._id; // 4-4
+    attachment.save();
+            // 4-4
+    }
 
 
 
