@@ -71,6 +71,8 @@ util.isLoggedin = function(req, res, next){
     next();
   }
   else {
+    console.log("req.originalURL:"+ req.originalURL);
+
     req.flash('errors', {login:'로그인 후 이용하실 수 있습니다.'});
     res.redirect('/login');
   }

@@ -51,11 +51,6 @@ router.get('/', async function(req, res) {
   });
 });
 
-
-
-
-
-
 router.get('/about', function(req, res){
   res.render('home/about');
 });
@@ -70,6 +65,7 @@ router.get('/login', function(req, res) {
     errors: errors
   });
 });
+
 
 // Post Login // 3
 router.post('/login', function(req, res, next) {

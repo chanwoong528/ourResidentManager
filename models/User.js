@@ -38,6 +38,30 @@ var userSchema = mongoose.Schema({
     trim:true,
     requried: true
   },
+//if user forget password
+
+
+  pass_question:
+  {
+    type: String,
+    requried:true
+  },
+  pass_answer:
+  {
+    type: String,
+    requried:[true, '공백 없이 적어주세요'],
+    trim: true
+  },
+  forgot:
+  {
+    type:Boolean,
+    default: false
+
+  },
+
+
+
+//for admin's convinient
   isAdmin:{
     type:Boolean, default:false
   },
@@ -144,14 +168,19 @@ userSchema.path('password').validate(function(v)
       }
     }
   // update user
-  if(!user.isNew){
-     if(!user.currentPassword){
-       user.invalidate('currentPassword', '현재 쓰고있는 비밀번호를 입력해주세요.');
-     }
-     else if(!bcrypt.compareSync(user.currentPassword, user.originalPassword)){
-       user.invalidate('currentPassword', '현재 비밀번호를 확인해주세요!');
-     }
-
+  if(!user.isNew  ){
+   //  console.log('user:'+user.forgot);
+   //  if(user.forgot==false)
+   //  {
+   //    console.log('user:'+user.forgot);
+   //   if(!user.currentPassword){
+   //     console.log('user:'+user.forgot);
+   //     user.invalidate('currentPassword', '현재 쓰고있는 비밀번호를 입력해주세요.');
+   //   }
+   //   else if(!bcrypt.compareSync(user.currentPassword, user.originalPassword)){
+   //     user.invalidate('currentPassword', '현재 비밀번호를 확인해주세요!');
+   //   }
+   // }
      if(user.newPassword && !passwordRegex.test(user.newPassword)){
        user.invalidate("newPassword", passwordRegexErrorMessage);
      }

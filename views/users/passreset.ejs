@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%- include('../partials/head') %>
+  </head>
+  <body>
+    <%- include('../partials/nav') %>
+
+  <div class="container mb-3">
+
+
+    <h3 class="mb-3">비밀번호를 초기화 해주세요</h3>
+
+
+    <form class="user-form" action="/users/passreset?_method=put" method="post">
+
+
+
+        <div class="form-group row">
+          <label for="username" class="col-sm-3 col-form-label">아이디:
+        </label>
+        <div class="col-sm-9">
+          <input type="text" id="username" name="username" value="<%=username%>" class="form-control <%= (errors.username)?'is-invalid':'' %>"readonly>
+        </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="username" class="col-sm-3 col-form-label">질문:
+        </label>
+        <div class="col-sm-9">
+           <input type="text" id="pass_question" name="pass_question" value="<%=pass_question%>" class="form-control <%= (errors.pass_question)?'is-invalid':'' %>"readonly>
+        </div>
+
+        </div>
+
+        <div class="form-group row">
+          <label for="pass_answer" class="col-sm-3 col-form-label">답변:
+        </label>
+        <div class="col-sm-9">
+          <input type="text" id="pass_answer" name="pass_answer" value="<%=pass_answer%>" class="form-control <%= (errors.pass_answer)?'is-invalid':'' %>"readonly>
+          <!-- <% if(errors.username){ %>
+            <span class="invalid-feedback"><%= errors.username %></span>
+          <% } %> -->
+        </div>
+
+        </div>
+
+        <div class="form-group row">
+          <label for="newPassword" class="col-sm-3 col-form-label">새로운 비밀번호
+          </label>
+
+          <div class="col-sm-9 col-sm-offset-3">
+            <input type="password" id="newPassword" name="newPassword" value="" class="form-control <%= (errors.newPassword)?'is-invalid':'' %>"> <!-- 2 -->
+            <% if(errors.newPassword){ %> <!-- 3 -->
+              <span class="invalid-feedback"><%= errors.newPassword.message %></span>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="passwordConfirmation" class="col-sm-3 col-form-label">비밀번호 확인
+          </label>
+
+          <div class="col-sm-9 col-sm-offset-3">
+            <input type="password" id="passwordConfirmation" name="passwordConfirmation" value="" class="form-control <%= (errors.passwordConfirmation)?'is-invalid':'' %>"> <!-- 2 -->
+            <% if(errors.passwordConfirmation){ %> <!-- 3 -->
+              <span class="invalid-feedback"><%= errors.passwordConfirmation.message %></span>
+            <% } %>
+          </div>
+        </div>
+
+
+
+
+
+        <button type="submit" class="btn btn-primary">확인</button>
+
+      </div>
+    </body>
+  </html>
