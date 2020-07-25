@@ -11,19 +11,7 @@ var User = require('../models/User');
 //file upload
 var path = require('path');
 var multer = require('multer');
-var upload = multer({
-  dest: 'uploadedFiles/',
-  fileFilter: function(req, file, callback) {
-    var ext = path.extname(file.originalname);
-    if (ext !== '.png' && ext !== '.jpg' && ext !== '.gif' && ext !== '.jpeg') {
-      return callback(new Error('Only images are allowed'))
-    }
-    callback(null, true);
-  },
-  limits: {
-    fileSize: 1024 * 1024
-  }
-}).single('attachment');
+var upload = multer({dest:'uploadedFiles/'}).single('attachment');
 var File = require('../models/File');
 
 // Index
@@ -81,49 +69,33 @@ router.get('/:boardName/new', util.isLoggedin, util.isSuspended, function(req, r
 
 // create
 router.post('/:boardName', util.isLoggedin, util.isSuspended, upload, async function(req, res) {
-  console.log('req.body before');
-  console.log(req.body);
   var boardName = req.params.boardName;
   var postType = boardName.slice(0, -1);
   var attachment;
   try {
     attachment = req.file ? await File.createNewInstance(req.file, req.user._id) : undefined;
-    // if (attachment) upload.single('attachment');
   } catch (err) {
     console.log('culprit 2');
     return res.json(err);
   }
-  if (attachment) {
 
-  }
   req.body.attachment = attachment;
-
   req.body.author = req.user._id;
-  console.log('req.body after');
-  console.log(req.body);
-  switch (boardName) {
-    case 'notices':
-
-      Notice.create(req.body, function(err, post) {
-        createHelper(err, req, res, post, attachment);
-      });
-      break;
-    case 'frees':
-      Free.create(req.body, function(err, post) {
-        createHelper(err, req, res, post, attachment);
-
-      });
-      break;
-
-    case 'trades':
-      Trade.create(req.body, function(err, post) {
-        createHelper(err, req, res, post, attachment);
-      });
-      break;
-
-    default:
-  }
-
+  req.body.board = postType;
+  Post.create(req.body, function(err, post){
+    // createHelper(err,req,res,post,attachment);
+    if (err) {
+      req.flash(postType, req.body);
+      req.flash('errors', util.parseError(err));
+      return res.redirect('/boards/' + boardName + '/new');
+    }
+    if (attachment) { // 4-4
+      attachment.postId = post._id; // 4-4
+      attachment.save();
+      // 4-4
+    }
+    return res.redirect('/boards/' + boardName);
+  });
 });
 
 // show
@@ -288,20 +260,4 @@ function checkPermission(req, res, next) {
 
     next();
   });
-}
-
-function createHelper(err, req, res, post, attachment) {
-  var boardName = req.params.boardName;
-  var postType = boardName.slice(0, -1);
-  if (err) {
-    req.flash(postType, req.body);
-    req.flash('errors', util.parseError(err));
-    return res.redirect('/boards/' + boardName + '/new');
-  }
-  if (attachment) { // 4-4
-    attachment.postId = post._id; // 4-4
-    attachment.save();
-    // 4-4
-  }
-  return res.redirect('/boards/' + boardName);
 }
