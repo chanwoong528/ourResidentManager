@@ -9,9 +9,22 @@ var util = require('../libs/util');
 var User = require('../models/User');
 
 //file upload
-var multer = require('multer'); // 1
-var upload = multer({ dest: 'uploadedFiles/' }); // 2
-var File = require('../models/File'); // 3
+var path = require('path');
+var multer = require('multer');
+var upload = multer({
+  dest: 'uploadedFiles/',
+  fileFilter: function(req, file, callback) {
+    var ext = path.extname(file.originalname);
+    if (ext !== '.png' && ext !== '.jpg' && ext !== '.gif' && ext !== '.jpeg') {
+      return callback(new Error('Only images are allowed'))
+    }
+    callback(null, true);
+  },
+  limits: {
+    fileSize: 1024 * 1024
+  }
+}).single('attachment');
+var File = require('../models/File');
 
 // Index
 router.get('/:boardName', async function(req, res) {
@@ -67,19 +80,27 @@ router.get('/:boardName/new', util.isLoggedin, util.isSuspended, function(req, r
 });
 
 // create
-router.post('/:boardName', util.isLoggedin, util.isSuspended, upload.single('attachment'), async function(req, res) {
+router.post('/:boardName', util.isLoggedin, util.isSuspended, upload, async function(req, res) {
+  console.log('req.body before');
+  console.log(req.body);
   var boardName = req.params.boardName;
   var postType = boardName.slice(0, -1);
   var attachment;
   try {
     attachment = req.file ? await File.createNewInstance(req.file, req.user._id) : undefined;
+    // if (attachment) upload.single('attachment');
   } catch (err) {
+    console.log('culprit 2');
     return res.json(err);
+  }
+  if (attachment) {
+
   }
   req.body.attachment = attachment;
 
-
   req.body.author = req.user._id;
+  console.log('req.body after');
+  console.log(req.body);
   switch (boardName) {
     case 'notices':
 
@@ -102,10 +123,6 @@ router.post('/:boardName', util.isLoggedin, util.isSuspended, upload.single('att
 
     default:
   }
-
-
-
-
 
 });
 
