@@ -17,31 +17,36 @@ router.get('/checkid', function(req, res) {
 
 router.post('/checkid', async function(req, res) {
   var errors = req.flash('errors')[0] || {};
+  var isValid = true;
+
+
   var user = await User.findOne({username:req.body.username,
                                   name:req.body.name
                                 })
-                        .exec();
+                        .exec(function(err, user){
+                            if(err) return res.json(err);
+                          if (!user)
+                          {
+                            req.flash('errors', errors);
+                            return res.redirect('users/checkid',{
 
+                            });
 
-    if (user)
-    {
-      user.forgot= true;
-      res.render('users/checkques',{
-          username: user.username,
-          name: user.name,
-          pass_question: user.pass_question,
-          errors: errors
-          });
-    }
-    else
-    {
-      res.render('users/checkid',{
-          username: user.username,
-          errors: errors
-          });
+                          }
+                          else
+                          {
+                            user.forgot= true;
+                            res.render('users/checkques',{
+                              username: user.username,
+                              name: user.name,
+                              pass_question: user.pass_question,
+                              errors: errors
+                            });
 
-    }
-  });
+                          }
+                        });
+                      })
+
 router.post('/checkques',  function(req, res) {
 var errors = req.flash('errors')[0] || {};
 User.findOne({ username:req.body.username,
@@ -53,7 +58,7 @@ User.findOne({ username:req.body.username,
                                   pass_answer:1,
                                 })
                               .exec(function(err, user){
-
+                                if(err) return res.json(err);
                                 if(user)
                                 {
                                   user.forgot = true;
@@ -69,7 +74,7 @@ User.findOne({ username:req.body.username,
                                 }
                                 else
                                 {
-                                      res.render('users/login',{
+                                      res.render('users/passreset',{
 
                                       });
 
@@ -80,14 +85,13 @@ User.findOne({ username:req.body.username,
 
 
 });
-router.put('/passreset', async function(req, res) {
+router.put('/passreset',  function(req, res) {
 
 
   User.findOne({username:req.body.username})
       .select({password:1, forgot:1})
       .exec(function(err, user){
-
-      if(err) return res.json(err);
+        if(err) return res.json(err);
 
       console.log('userpassword'+user.password);
       // update user object

@@ -21,9 +21,9 @@
         </label>
         <div class="col-sm-9">
           <input type="text" id="username" name="username" value="" class="form-control <%= (errors.username)?'is-invalid':'' %>">
-          <!-- <% if(errors.username){ %>
+          <% if(errors.username){ %>
             <span class="invalid-feedback"><%= errors.username %></span>
-          <% } %> -->
+          <% } %>
         </div>
 
         </div>
@@ -34,9 +34,9 @@
         </label>
         <div class="col-sm-9">
           <input type="text" id="name" name="name" value="" class="form-control <%= (errors.name)?'is-invalid':'' %>">
-          <!-- <% if(errors.username){ %>
-            <span class="invalid-feedback"><%= errors.username %></span>
-          <% } %> -->
+       <% if(errors.name){ %>
+            <span class="invalid-feedback"><%= errors.name %></span>
+          <% } %>
         </div>
 
         </div>

@@ -29,6 +29,11 @@
         </label>
         <div class="col-sm-9">
            <input type="text" id="pass_question" name="pass_question" value="<%=pass_question%>" class="form-control <%= (errors.pass_question)?'is-invalid':'' %>"readonly>
+           <% if(errors.pass_answer){ %>
+             <span class="invalid-feedback">
+             <%= errors.pass_answer %></span>
+           <% } %>
+
         </div>
 
         </div>
@@ -38,9 +43,9 @@
         </label>
         <div class="col-sm-9">
           <input type="text" id="pass_answer" name="pass_answer" value="" class="form-control <%= (errors.pass_answer)?'is-invalid':'' %>">
-          <!-- <% if(errors.username){ %>
-            <span class="invalid-feedback"><%= errors.username %></span>
-          <% } %> -->
+          <% if(errors.pass_answer){ %>
+            <span class="invalid-feedback"><%= errors.pass_answer %></span>
+          <% } %>
         </div>
 
         </div>
