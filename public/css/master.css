@@ -1,6 +1,8 @@
 @import url(//fonts.googleapis.com/earlyaccess/nanumpenscript.css);
 @import url('https://fonts.googleapis.com/css2?family=Dokdo&display=swap');
 
+html {margin-bottom: 65px}
+
 body {
   font-family: 'Open Sans', sans-serif;
 }
@@ -65,7 +67,7 @@ div.best-posts .empty {
 }
 
 div.best-posts .title {
-  width: 60%;
+  width: 70%;
   float:left;
   white-space: nowrap;
   overflow: hidden;
@@ -80,14 +82,14 @@ div.best-posts .likes {
   text-overflow: ellipsis;
 }
 
-div.best-posts .author {
-  width: 30%;
+/* div.best-posts .author {
+  width: 20%;
   float:right;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: right;
-}
+} */
 
 div.mini-title {
   width: 50%;
