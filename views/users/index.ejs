@@ -1,83 +1,87 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <%- include('../partials/head') %>
-  </head>
-  <body>
-    <%- include('../partials/nav') %>
 
-    <div class="container mb-3">
+<head>
+  <%- include('../partials/head') %>
+</head>
 
-      <h3 class="mb-3">Users</h3>
+<body>
+  <%- include('../partials/nav') %>
 
-<table class="board-table table table-sm border-bottom">
-<thead class="thead-light">
-  <tr>
-    <th scope="col" class = "username"> 아이디 </th>
-    <th scope="col" class = "name" > 이름 </th>
-    <th scope="col" class = "verified"> 인증 </th>
-    <th scope="col" class = "sus"> 정지 </th>
-    <th scope="col" class = "addr"> 주소 </th>
-  </tr>
-</thead>
+  <div class="container mb-3">
+
+    <h3 class="mb-3">Users</h3>
+
+    <table class="board-table table table-sm border-bottom">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col" class="username"> 아이디 </th>
+          <th scope="col" class="name"> 이름 </th>
+          <th scope="col" class="verified"> 인증 </th>
+          <th scope="col" class="sus"> 정지 </th>
+          <th scope="col" class="addr"> 주소 </th>
+        </tr>
+      </thead>
       <tbody>
         <% if(users == null || users.length == 0){ %>
-          <tr>
+        <tr>
           <td> There is no user yet.</td>
-          </tr>
+        </tr>
         <% } %>
         <% users.forEach(function(user) { %>
-          <tr>
-            <td class= "username">
-              <div class="ellipsis">
-                <%= user.username %>
-              </div>
+        <tr>
+          <td class="username">
+            <div class="ellipsis">
+              <%= user.username %>
+            </div>
 
-            </td>
-            <td class="name">
-              <div class="ellipsis">
+          </td>
+          <td class="name">
+            <div class="ellipsis">
               <%= user.name %>
-                </div>
-            </td>
+            </div>
+          </td>
 
-      <form action="/users/verified/<%= user.username %>?_method=put" method="post">
+          <form action="/users/verified/<%= user.username %>?_method=put" method="post">
 
-            <td class="verified" >
+            <td class="verified">
               <div class="ellipsis">
                 <a class="btn <%=user.verified?'btn-primary':'btn-warning'%>
-                <%= user.verified?'disabled':'btn-secondary'%>" href = "/users/verified/<%=user.username%>">
+                <%= user.verified?'disabled':'btn-secondary'%>" href="/users/verified/<%=user.username%>">
                   <%=user.verified?'승인완료':'승인요청중'%>
-                 </a>
-                </div>
-              </td>
-      </form>
+                </a>
+              </div>
+            </td>
+          </form>
 
 
           <form action="/users/suspended/<%= user.username %>?_method=put" method="post">
-              <td class="sus" >
-                <div class="ellipsis">
-              <a class="btn <%=user.suspended?'btn-danger':'btn-danger'%> <%= user.suspended?'disabled':'btn-secondary'%>"
-                href="/users/suspended/<%=user.username%>" onclick="confirm('Do you want to suspend this user?')?this.parentElement.submit():null;">
-              <%=user.suspended?'정지됨':'정지하기'%>
+            <td class="sus">
+              <div class="ellipsis">
+                <a class="btn <%=user.suspended?'btn-danger':'btn-danger'%> <%= user.suspended?'disabled':'btn-secondary'%>" href="/users/suspended/<%=user.username%>"
+                  onclick="confirm('Do you want to suspend this user?')?this.parentElement.submit():null;">
+                  <%=user.suspended?'정지됨':'정지하기'%>
                 </a>
-              <a class="btn <%=user.suspended?'btn-warning':'btn-secondary'%> <%= user.suspended?'':'disabled'%>"
-                href="/users/unsuspended/<%=user.username%>" onclick="confirm('Do you want to unsuspend this user?')?this.parentElement.submit():null;">
-              <%=user.suspended?'정지해제':'이용중'%>
+                <a class="btn <%=user.suspended?'btn-warning':'btn-secondary'%> <%= user.suspended?'':'disabled'%>" href="/users/unsuspended/<%=user.username%>"
+                  onclick="confirm('Do you want to unsuspend this user?')?this.parentElement.submit():null;">
+                  <%=user.suspended?'정지해제':'이용중'%>
 
-              </a>
-            </div>
-          </td>
-          </form>
-
-    <td class= "addr">
-              <div class="ellipsis"><%= user.addr %>
+                </a>
               </div>
             </td>
-          </tr>
+          </form>
+
+          <td class="addr">
+            <div class="ellipsis"><%= user.addr %>
+            </div>
+          </td>
+        </tr>
 
         <% }) %>
       </tbody>
-</table>
-    </div>
-  </body>
+    </table>
+  </div>
+  <%- include('../partials/footer') %>
+</body>
+
 </html>

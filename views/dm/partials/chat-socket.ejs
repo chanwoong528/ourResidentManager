@@ -8,12 +8,13 @@
   var refresh = $("#refresh_i");
   var inbox = $(".inbox_chat");
   var msg_send_btn = $('.msg_send_btn');
+  var search_bar = $('.search-bar');
+  var search_button = $('#srch_btn');
 
   refresh.on("click", refreshChatList);
 
   var target_username = `<%= target %>`;
   var passKey = `<%= passKey %>`;
-  console.log('passKey? ' + passKey);
   $(function () {
     socket.emit('request chat list', username, passKey);
     if (target_username) socket.emit('chat init', username, target_username, passKey);
@@ -42,6 +43,26 @@
       msg_history.append(msg);
       msg_history.scrollTop(msg_history[0].scrollHeight);
     });
+
+    search_bar.on('keyup', function () {
+      if (event.which == 13){
+        loadChatBySearch();
+        return;
+      }
+      var list_item = inbox.find("div[id*='" + search_bar.val() + "']");
+      list_item.prependTo(inbox);
+    });
+
+    search_button.on('click', loadChatBySearch);
+
+    function loadChatBySearch(){
+      var list_item = inbox.find("#" + search_bar.val());
+      if (list_item.attr('id') == search_bar.val()) {
+        loadChatBySelection(list_item);
+      }
+      search_bar.val('');
+    }
+
   });
   socket.on('chat init', function(){
     showChat();
@@ -87,7 +108,6 @@
     $("#loading").hide();
     inbox.append(list);
     if (target_username){
-      console.log('target\'s username = ' + target_username);
       var list_item = inbox.find("#" + target_username);
       list_item.addClass("active_chat");
     }
