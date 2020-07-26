@@ -8,9 +8,9 @@
     <div class="text-muted p-2">(삭제된 댓글입니다)</div>
     <% } else { %>
     <div class="row">
-      <div class="col-3 col-md-2 col-lg-1 pl-4">
-        <%= comment.author.name %></div>
-      <div id="comment-<%= comment._id %>" class="col-9 col-md-10 col-lg-11 <%= (commentError._id == comment._id)?'comment-edit-enabled':'' %>">
+      <div class="col-3 col-md-2 col-lg-2 pl-4">
+        <%= comment.author.nickname %></div>
+      <div id="comment-<%= comment._id %>" class="col-9 col-md-10 col-lg-10 <%= (commentError._id == comment._id)?'comment-edit-enabled':'' %>">
         <div class="comment-show">
           <div class="comment-text mb-3">
             <%= comment.text %></div>

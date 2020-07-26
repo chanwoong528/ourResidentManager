@@ -75,7 +75,6 @@ router.post('/:boardName', util.isLoggedin, util.isSuspended, upload, async func
   try {
     attachment = req.file ? await File.createNewInstance(req.file, req.user._id) : undefined;
   } catch (err) {
-    console.log('culprit 2');
     return res.json(err);
   }
 
@@ -102,9 +101,6 @@ router.post('/:boardName', util.isLoggedin, util.isSuspended, upload, async func
 router.get('/:boardName/:id', function(req, res) {
   var boardName = req.params.boardName;
   var postType = boardName.slice(0, -1);
-  var likes = Post.likes;
-  var views = Post.views;
-  var comments = Post.comments;
   var commentForm = req.flash('commentForm')[0] || {
     _id: null,
     form: {}
@@ -120,18 +116,19 @@ router.get('/:boardName/:id', function(req, res) {
         _id: req.params.id
       }).populate({
         path: 'author',
-        select: ['name', 'username']
+        select: ['nickname', 'username']
+        // select: ['name', 'username']
       }).populate({ path: 'attachment', match: { isDeleted: false } }),
       Comment.find({
         post: req.params.id
       }).sort('createdAt').populate({
         path: 'author',
-        select: ['name', 'username']
+        select: ['nickname', 'username']
+        // select: ['name', 'username']
       })
     ])
     .then(([post, comments]) => {
       var liked = false;
-
       post.views++; // 2
       post.save();
       // console.log('req.user = ' + req.user);
@@ -152,9 +149,7 @@ router.get('/:boardName/:id', function(req, res) {
         comments: comments,
         commentForm: commentForm,
         commentError: commentError,
-        likes: likes,
         liked: liked,
-        views: views,
 
       });
     })

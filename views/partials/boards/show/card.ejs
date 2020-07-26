@@ -27,7 +27,7 @@
     <div class="col-md-5 col-lg-4 col-xl-3 order-sm-1 order-md-2">
       <div class="post-info card m-2 p-2">
         <div class="border-bottom pb-1 mb-1">
-          <span>글쓴이</span> : <%= post.author ? post.author.name : "" %>
+          <span>글쓴이</span> : <%= post.author ? post.author.nickname : "" %>
         </div>
         <div><span>작성일</span> :
           <span data-date-time="<%= post.createdAt %>"><%= post.createdAt %>
