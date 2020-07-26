@@ -12,105 +12,83 @@
       <h1>우리 동네 이야기</h1>
       <P>우리동네 소통의 장 </p>
     </div>
-    <div style="width:33%; float:left">
-      <table class="minitable">
-        <span> <i class='	fas fa-thumbtack' style='font-size:24px'></i>
-          <font class="title">공지사항 BEST</font>
-        </span>
-        <tbody>
+
+    <div class="best-container">
+      <div class="best-three normal">
+        <div class="best-board">
+          공지사항 BEST
+        </div>
+        <div class="best-posts">
           <% if(posts == null || posts.length == 0){ %>
-          <tr>
-            <td colspan=100> 아직 포스트가 없어요:( </td>
-          </tr>
+          <div class="best-posts empty">
+            아직 포스트가 없어요:(
+          </div>
           <% } %>
           <% posts.forEach(function(post) { %>
-          <tr>
-            <td>
-              <div class="mini-title">
-                <a href="/boards/notices/<%= post._id %>"><%= post.title %></a>
-              </div>
-            </td>
-            <td>
-              <div> <i class='far fa-thumbs-up' style='font-size:12px'></i> <%= post.likes %></div>
-            </td>
-            <td class="author">
-              <!-- 2 -->
-              <div class="ellipsis"><%= post.author ? post.author.name : "" %></div>
-            </td>
+          <div class="best-posts title">
+            <a href="/boards/notices/<%= post._id %>"><%= post.title %></a>
+          </div>
+          <div class="best-posts author">
+            <%= post.author ? post.author.name : "" %>
+          </div>
+          <div class="best-posts likes">
+            <i class='far fa-thumbs-up' style='font-size:12px'></i> <%= post.likes %>
+          </div>
 
-          </tr>
           <% }) %>
-        </tbody>
+        </div>
+      </div>
 
-      </table>
-    </div>
-    <div style="width:33%; float:left">
-      <table class="minitable">
-        <span> <i class='	fas fa-thumbtack' style='font-size:24px'></i>
-          <font class="title">자유게시판 BEST</font>
-        </span>
-        <tbody>
+      <div class="best-three normal">
+        <div class="best-board">
+          자유게시판 BEST
+        </div>
+        <div class="best-posts">
           <% if(postss == null || postss.length == 0){ %>
-          <tr>
-            <td colspan=100> 아직 포스트가 없어요:( </td>
-          </tr>
+          <div class="best-posts empty">
+            아직 포스트가 없어요:(
+          </div>
           <% } %>
           <% postss.forEach(function(post) { %>
-          <tr>
-            <td>
-              <div class="ellipsis">
-                <a href="/boards/frees/<%= post._id %>"><%= post.title %></a>
-              </div>
-            </td>
-            <td>
-              <div> <i class='far fa-thumbs-up' style='font-size:12px'></i> <%= post.likes %></div>
-            </td>
-            <td class="author">
-              <!-- 2 -->
-              <div class="ellipsis"><%= post.author ? post.author.name : "" %></div>
-            </td>
+          <div class="best-posts title">
+            <a href="/boards/notices/<%= post._id %>"><%= post.title %></a>
+          </div>
+          <div class="best-posts author">
+            <%= post.author ? post.author.name : "" %>
+          </div>
+          <div class="best-posts likes">
+            <i class='far fa-thumbs-up' style='font-size:12px'></i> <%= post.likes %>
+          </div>
 
-          </tr>
           <% }) %>
-        </tbody>
+        </div>
+      </div>
 
-      </table>
-    </div>
-
-    <div style="width:33%; float:right">
-      <table>
-        <span>
-          <i class='	fas fa-thumbtack' style='font-size:24px'></i>
-          <font class="title">장터 BEST</font>
-        </span>
-        <tbody>
+      <div class="best-three end">
+        <div class="best-board">
+          장터 BEST
+        </div>
+        <div class="best-posts">
           <% if(postsss == null || postsss.length == 0){ %>
-          <tr>
-            <td colspan=100> 아직 포스트가 없어요:( </td>
-          </tr>
+          <div class="best-posts empty">
+            아직 포스트가 없어요:(
+          </div>
           <% } %>
           <% postsss.forEach(function(post) { %>
-          <tr>
-            <td>
-              <div class="ellipsis">
-                <a href="/boards/trades/<%= post._id %>"><%= post.title %></a>
-              </div>
-            </td>
-            <td>
-              <div> <i class='far fa-thumbs-up' style='font-size:12px'></i> <%= post.likes %></div>
-            </td>
-            <td class="author">
-              <!-- 2 -->
-              <div class="ellipsis"><%= post.author ? post.author.name : "" %></div>
-            </td>
+          <div class="best-posts title">
+            <a href="/boards/notices/<%= post._id %>"><%= post.title %></a>
+          </div>
+          <div class="best-posts author">
+            <%= post.author ? post.author.name : "" %>
+          </div>
+          <div class="best-posts likes">
+            <i class='far fa-thumbs-up' style='font-size:12px'></i> <%= post.likes %>
+          </div>
 
-          </tr>
           <% }) %>
-        </tbody>
-
-      </table>
+        </div>
+      </div>
     </div>
-
 
   </div>
   <%- include('../partials/footer') %>

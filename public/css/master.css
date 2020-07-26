@@ -27,11 +27,6 @@ img {
   height: auto;
 }
 
-font.title{
-  font-size:36px;
-  font-family: 'Dokdo', cursive;
-}
-
 div.about {
   border-style: solid;
   width: 500px;
@@ -40,11 +35,61 @@ div.about {
   word-break: break-all;
 }
 
-.minitable {
-
+div.best-container {
+  position:relative;
+  width:100%;
 }
 
-div.minititle {
+div.best-three{
+  float:left;
+  width:33%;
+  padding-right: 5px;
+  padding-left: 5px;
+}
+
+div.best-board {
+  font-size:36px;
+  font-family: 'Dokdo', cursive;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+div.best-posts,
+div.best-posts .empty {
+  width: 100%;
+  float:left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+div.best-posts .title {
+  width: 60%;
+  float:left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+div.best-posts .likes {
+  width: auto;
+  float:left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+div.best-posts .author {
+  width: 30%;
+  float:right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+}
+
+div.mini-title {
   width: 50%;
   white-space: nowrap;
   overflow: hidden;
