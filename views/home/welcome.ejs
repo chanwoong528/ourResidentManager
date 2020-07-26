@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <%- include('../partials/head') %>
-  </head>
-  <body>
-    <%- include('../partials/nav') %>
-    <div class="container mb-3">
-      <div class="jumbotron">
-        <h1>우리 동네 이야기</h1>
-        <P>우리동네 소통의 장 </p>
-      </div>
-      <div style = "width:33%; float:left">
-      <table class= "minitable" >
-        <span> <i class='far fa-thumbs-up' style='font-size:24px'></i> 공지사항 BEST </span>
+
+<head>
+  <%- include('../partials/head') %>
+</head>
+
+<body>
+  <%- include('../partials/nav') %>
+  <div class="container mb-3">
+    <div class="jumbotron">
+      <h1>우리 동네 이야기</h1>
+      <P>우리동네 소통의 장 </p>
+    </div>
+    <div style="width:33%; float:left">
+      <table class="minitable">
+        <span> <i class='	fas fa-thumbtack' style='font-size:24px'></i>
+          <font class="title">공지사항 BEST</font>
+        </span>
         <tbody>
           <% if(posts == null || posts.length == 0){ %>
           <tr>
@@ -22,12 +26,12 @@
           <% posts.forEach(function(post) { %>
           <tr>
             <td>
-              <div class="ellipsis">
-              <a href="/boards/notices/<%= post._id %>"><%= post.title %></a>
+              <div class="mini-title">
+                <a href="/boards/notices/<%= post._id %>"><%= post.title %></a>
               </div>
             </td>
             <td>
-              <div> <i class='far fa-thumbs-up' style='font-size:12px'></i>: <%= post.likes %></div>
+              <div> <i class='far fa-thumbs-up' style='font-size:12px'></i> <%= post.likes %></div>
             </td>
             <td class="author">
               <!-- 2 -->
@@ -39,10 +43,12 @@
         </tbody>
 
       </table>
-</div>
-<div style = "width:33%; float:left">
-      <table class= "minitable" >
-        <span> <i class='far fa-thumbs-up' style='font-size:24px'></i>자유게시판 BEST </span>
+    </div>
+    <div style="width:33%; float:left">
+      <table class="minitable">
+        <span> <i class='	fas fa-thumbtack' style='font-size:24px'></i>
+          <font class="title">자유게시판 BEST</font>
+        </span>
         <tbody>
           <% if(postss == null || postss.length == 0){ %>
           <tr>
@@ -53,11 +59,11 @@
           <tr>
             <td>
               <div class="ellipsis">
-              <a href="/boards/frees/<%= post._id %>"><%= post.title %></a>
+                <a href="/boards/frees/<%= post._id %>"><%= post.title %></a>
               </div>
             </td>
             <td>
-              <div> <i class='far fa-thumbs-up' style='font-size:12px'></i>: <%= post.likes %></div>
+              <div> <i class='far fa-thumbs-up' style='font-size:12px'></i> <%= post.likes %></div>
             </td>
             <td class="author">
               <!-- 2 -->
@@ -71,38 +77,43 @@
       </table>
     </div>
 
-<div style = "width:33%; float:right">
-<table>
-      <span> <i class='far fa-thumbs-up' style='font-size:24px'></i>직거래 BEST </span>
-      <tbody>
-        <% if(postsss == null || postsss.length == 0){ %>
-        <tr>
-          <td colspan=100> 아직 포스트가 없어요:( </td>
-        </tr>
-        <% } %>
-        <% postsss.forEach(function(post) { %>
-        <tr>
-          <td>
-            <div class="ellipsis">
-            <a href="/boards/trades/<%= post._id %>"><%= post.title %></a>
-            </div>
-          </td>
-          <td>
-            <div> <i class='far fa-thumbs-up' style='font-size:12px'></i>: <%= post.likes %></div>
-          </td>
-          <td class="author">
-            <!-- 2 -->
-            <div class="ellipsis"><%= post.author ? post.author.name : "" %></div>
-          </td>
+    <div style="width:33%; float:right">
+      <table>
+        <span>
+          <i class='	fas fa-thumbtack' style='font-size:24px'></i>
+          <font class="title">장터 BEST</font>
+        </span>
+        <tbody>
+          <% if(postsss == null || postsss.length == 0){ %>
+          <tr>
+            <td colspan=100> 아직 포스트가 없어요:( </td>
+          </tr>
+          <% } %>
+          <% postsss.forEach(function(post) { %>
+          <tr>
+            <td>
+              <div class="ellipsis">
+                <a href="/boards/trades/<%= post._id %>"><%= post.title %></a>
+              </div>
+            </td>
+            <td>
+              <div> <i class='far fa-thumbs-up' style='font-size:12px'></i> <%= post.likes %></div>
+            </td>
+            <td class="author">
+              <!-- 2 -->
+              <div class="ellipsis"><%= post.author ? post.author.name : "" %></div>
+            </td>
 
-        </tr>
-        <% }) %>
-      </tbody>
+          </tr>
+          <% }) %>
+        </tbody>
 
-</table>
-</div>
-
-
+      </table>
     </div>
-  </body>
+
+
+  </div>
+  <%- include('../partials/footer') %>
+</body>
+
 </html>
