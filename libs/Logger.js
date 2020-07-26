@@ -10,7 +10,7 @@ var Logger = function() {
 
 };
 
-Logger.prototype.logMap = {}; // {chatId:[{username:, msg:, date:},],}
+Logger.prototype.logData = {}; // {chatId:[{username:, msg:, date:},],}
 Logger.prototype.chatListByUser = {}; // {username:{target:chatId,},}
 Logger.prototype.chatMembers = {}; // {username:[member1, member2,],}
 
@@ -116,8 +116,8 @@ Logger.prototype.track = function(chat) {
   var user1 = chat.users[0];
   var user2 = chat.users[1];
   // var log = chat.log;
-  if (!Logger.prototype.logMap[chatId]) {
-    Logger.prototype.logMap[chatId] = new Array();
+  if (!Logger.prototype.logData[chatId]) {
+    Logger.prototype.logData[chatId] = new Array();
     // if (log) {
     //   // if there is DB log, add them to logMap
     // }
@@ -142,7 +142,7 @@ Logger.prototype.getRecentLog = function(chatId, username, target, quantity) {
   var qty = quantity ? quantity : 50;
   var cid = chatId ? chatId : Logger.prototype.getChatId(username, target);
   if (cid == '') return 0;
-  var logEntry = Logger.prototype.logMap[cid];
+  var logEntry = Logger.prototype.logData[cid];
   var log = '';
   if (logEntry != null && logEntry !== undefined) {
     var start = logEntry.length - 1;
@@ -163,8 +163,8 @@ Logger.prototype.getRecentLog = function(chatId, username, target, quantity) {
 }
 
 Logger.prototype.getLastLog = function(chatId, fromDB) {
-  if (Logger.prototype.logMap[chatId]) {
-    var data = Logger.prototype.logMap[chatId][Logger.prototype.logMap[chatId].length - 1];
+  if (Logger.prototype.logData[chatId]) {
+    var data = Logger.prototype.logData[chatId][Logger.prototype.logData[chatId].length - 1];
     return data ? { msg: data.msg, date: data.date, stamp: dateUtil.getDateAsString(data.date) } : -1;
   }
   return -1;
@@ -174,13 +174,13 @@ Logger.prototype.addLogToChat = function(chatId, data) {
   var cid = data.cid;
   var log = { username: data.username, msg: data.msg, date: data.date };
   Logger.prototype.checkLogMapFor(cid);
-  Logger.prototype.logMap[chatId].push(log);
+  Logger.prototype.logData[chatId].push(log);
   return log;
 }
 
 Logger.prototype.checkLogMapFor = function(chatId) {
-  if (!Logger.prototype.logMap[chatId]) {
-    Logger.prototype.logMap[chatId] = new Array();
+  if (!Logger.prototype.logData[chatId]) {
+    Logger.prototype.logData[chatId] = new Array();
   }
 }
 
@@ -188,8 +188,8 @@ Logger.prototype.checkLogMapFor = function(chatId) {
  * @deprecated
  */
 Logger.prototype.getLog = function(chatId, fromDB, username) {
-  if (!username) return Logger.prototype.logMap[chatId] === undefined ? -1 : Logger.prototype.logMap[chatId];
-  var logEntry = Logger.prototype.logMap[chatId];
+  if (!username) return Logger.prototype.logData[chatId] === undefined ? -1 : Logger.prototype.logData[chatId];
+  var logEntry = Logger.prototype.logData[chatId];
   var log = '';
   if (logEntry != null && logEntry !== undefined) {
     logEntry.forEach((item, i) => {
