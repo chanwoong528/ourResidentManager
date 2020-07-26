@@ -106,8 +106,8 @@ module.exports.listen = function(server) {
 
           // let others in chatroom be notified
           notifyAll(cid, data.username);
-
-          yourMsg = logger.buildMessage(data.username, data.msg, data.date, false);
+          
+          yourMsg = logger.buildMessage(data, false);
           socket.to(cid).emit('receive msg', yourMsg);
 
           // update the chat list for clients
