@@ -28,9 +28,6 @@
           <div class="best-posts title">
             <a href="/boards/notices/<%= post._id %>"><%= post.title %></a>
           </div>
-          <div class="best-posts author">
-            <%= post.author ? post.author.nickname : "" %>
-          </div>
           <div class="best-posts likes">
             <i class='far fa-thumbs-up' style='font-size:12px'></i> <%= post.likes %>
           </div>
@@ -53,9 +50,6 @@
           <div class="best-posts title">
             <a href="/boards/notices/<%= post._id %>"><%= post.title %></a>
           </div>
-          <div class="best-posts author">
-            <%= post.author ? post.author.nickname : "" %>
-          </div>
           <div class="best-posts likes">
             <i class='far fa-thumbs-up' style='font-size:12px'></i> <%= post.likes %>
           </div>
@@ -77,9 +71,6 @@
           <% postsss.forEach(function(post) { %>
           <div class="best-posts title">
             <a href="/boards/notices/<%= post._id %>"><%= post.title %></a>
-          </div>
-          <div class="best-posts author">
-            <%= post.author ? post.author.nickname : "" %>
           </div>
           <div class="best-posts likes">
             <i class='far fa-thumbs-up' style='font-size:12px'></i> <%= post.likes %>
