@@ -63,7 +63,7 @@ Logger.prototype.getChatList = function(username) {
 
 Logger.prototype.getDBChatList = function(username){
   try {
-    var chats = Chat.find({ users: { $all: [username] } }).exec();
+    var chats = Chat.find({ usernames: { $all: [username] } }).exec();
     chats.forEach((chat, i) => {
       Logger.prototype.track(chat);
     });
@@ -76,7 +76,7 @@ Logger.prototype.getChatId = async function(username, target) {
   var chatId = '';
   if (!Logger.prototype.chatListByUser[username]) {
     try {
-      var chats = await Chat.find({ users: { $all: [username] } }).exec();
+      var chats = await Chat.find({ usernames: { $all: [username] } }).exec();
       chats.forEach((chat, i) => {
         Logger.prototype.track(chat);
         if (chat.usernames.includes(username) && chat.usernames.includes(target)) {
@@ -90,7 +90,7 @@ Logger.prototype.getChatId = async function(username, target) {
     }
   } else if (!Logger.prototype.chatListByUser[username][target]) {
     try {
-      var chat = await Chat.findOne({ users: { $all: [username, target] } }).exec();
+      var chat = await Chat.findOne({ usernames: { $all: [username, target] } }).exec();
       if (chat) {
         Logger.prototype.track(chat);
         chatId = chat._id.toString();
