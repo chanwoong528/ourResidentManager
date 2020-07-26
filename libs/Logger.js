@@ -11,6 +11,7 @@ var Logger = function() {
 };
 
 Logger.prototype.logData = {}; // {chatId:[{username:, msg:, date:},],}
+Logger.prototype.nicknames = {}; // {username:nickname,}
 Logger.prototype.chatListByUser = {}; // {username:{target:chatId,},}
 Logger.prototype.chatMembers = {}; // {username:[member1, member2,],}
 
@@ -78,7 +79,7 @@ Logger.prototype.getChatId = async function(username, target) {
       var chats = await Chat.find({ users: { $all: [username] } }).exec();
       chats.forEach((chat, i) => {
         Logger.prototype.track(chat);
-        if (chat.users.includes(username) && chat.users.includes(target)) {
+        if (chat.usernames.includes(username) && chat.usernames.includes(target)) {
           chatId = chat._id.toString();
         }
       });
@@ -113,8 +114,8 @@ Logger.prototype.getChatMembers = function(chatId, username){
 
 Logger.prototype.track = function(chat) {
   var chatId = chat._id.toString();
-  var user1 = chat.users[0];
-  var user2 = chat.users[1];
+  var user1 = chat.usernames[0];
+  var user2 = chat.usernames[1];
   // var log = chat.log;
   if (!Logger.prototype.logData[chatId]) {
     Logger.prototype.logData[chatId] = new Array();
@@ -122,6 +123,9 @@ Logger.prototype.track = function(chat) {
     //   // if there is DB log, add them to logMap
     // }
   }
+  chat.user_data.forEach((user, i) => {
+    Logger.prototype.nicknames[chat.usernames[i]] = chat.nicknames[i];
+  });
   if (!Logger.prototype.chatMembers[chatId]) {
     Logger.prototype.chatMembers[chatId] = new Array();
     Logger.prototype.chatMembers[chatId].push(user1);
@@ -247,6 +251,8 @@ Logger.prototype.buildMessage = function(data, isMyMsg) {
 Logger.prototype.buildChatList = function(username, msg, date) {
   var built = '';
   var n = username;
+  var nn = Logger.prototype.nicknames[username];
+  console.log(Logger.prototype.nicknames);
   var m = msg ? escapeUtil.escape(msg) : '';
   var d = date ? escapeUtil.escape(dateUtil.getDateAsString(date)) : '';
   built += `<div id="`;
@@ -255,7 +261,7 @@ Logger.prototype.buildChatList = function(username, msg, date) {
   built += `<div class="chat_people">`;
   built += `<div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>`;
   built += `<div class="chat_ib"><h5>`;
-  built += n;
+  built += n + ` (` + nn + `)`;
   built += `<span class="chat_date">`;
   built += d ? d : ``;
   built += `</span></h5><p>`;

@@ -2,8 +2,16 @@ var mongoose = require('mongoose');
 
 // schema
 var chatSchema = mongoose.Schema({
-  users: [{
+  usernames: [{
     type: String
+  }],
+  nicknames: [{
+    type: String
+  }],
+  user_data:[{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
+    required: true
   }],
   log: [{
     username: {
@@ -60,6 +68,13 @@ chatSchema.methods.getDBLog = function(num) {
 chatSchema.statics.findOneByUsernames = function(user1, user2, callback) {
   this.findOne({ users: { $all: [user1, user2] } }, (err, result) => {
     return result ? callback(err, result) : this.create({ users: [user1, user2] },
+      (err, result) => { return callback(err, result) });
+  });
+};
+
+chatSchema.statics.findOneByUsers = function(user1, user2, callback) {
+  this.findOne({ user_data: { $all: [user1, user2] } }, (err, result) => {
+    return result ? callback(err, result) : this.create({ user_data: [user1, user2] },
       (err, result) => { return callback(err, result) });
   });
 };

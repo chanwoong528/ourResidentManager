@@ -31,9 +31,8 @@
               <span class="button__badge"></span>
             </i>
           </a>
-          <%- include('./socket') %>
         </li>
-        <li class="nav-item"><a href="/users/<%= currentUser.username %>" class="nav-link">나의 계정</a></li>
+        <li class="nav-item"><a href="/users/<%= currentUser.username %>" class="nav-link">내 계정</a></li>
         <li class="nav-item"><a href="/logout" class="nav-link">로그아웃</a></li>
             <% if(currentUser.suspended){ %>
             <li class="nav-item"><a class="nav-link" style = 'color:red'>
