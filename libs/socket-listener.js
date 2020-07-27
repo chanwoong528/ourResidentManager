@@ -106,7 +106,7 @@ module.exports.listen = function(server) {
 
           // let others in chatroom be notified
           notifyAll(cid, data.username);
-          
+
           yourMsg = logger.buildMessage(data, false);
           socket.to(cid).emit('receive msg', yourMsg);
 
@@ -165,9 +165,10 @@ module.exports.listen = function(server) {
     var sid = socket.id;
     var chatId = '';
     if (username) {
-      chatId = online_users[username][sid];
-      delete online_users[username];
-
+      if (online_users[username]){
+        chatId = online_users[username][sid];
+        delete online_users[username];
+      }
     }
     return chatId;
   }
