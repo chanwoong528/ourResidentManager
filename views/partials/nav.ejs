@@ -23,8 +23,13 @@
         <% if(isAuthenticated){ %>
 
         <% if(currentUser.isAdmin){ %>
-          <li class="nav-item"><a href="/users" class="nav-link">관리자 페이지</a></li>
-          <% } %>
+        <li class="nav-item"><a href="/users" class="nav-link">관리자 페이지</a></li>
+        <% } %>
+        <% if(currentUser.isAdmin){ %>
+        <li class="nav-item"><a href="/bills/admin" class="nav-link">고지서 관리</a></li>
+        <% } else { %>
+        <li class="nav-item"><a href="/bills/user" class="nav-link">고지서</a></li>
+        <% } %>
         <li>
           <a href="/dm/" class="nav-link" onclick="clearNotification()">
             <i class='far fa-comment-dots' style='font-size:24px; position:relative'>
@@ -35,16 +40,16 @@
         </li>
         <li class="nav-item"><a href="/users/<%= currentUser.username %>" class="nav-link">내 계정</a></li>
         <li class="nav-item"><a href="/logout" class="nav-link">로그아웃</a></li>
-            <% if(currentUser.suspended){ %>
-            <li class="nav-item"><a class="nav-link" style = 'color:red'>
-              <i class='fas fa-ban'style='color:red'></i>정지된 유저</a></li>
-            <% } %>
-            <% if(!currentUser.verified){ %>
-              <li class="nav-item"><a class="nav-link" style = 'color:blue'>
-                <i class="fas fa-exclamation-triangle"></i>미인증 상태</a></li>
-              <% } else { %>
+        <% if(currentUser.suspended){ %>
+        <li class="nav-item"><a class="nav-link" style='color:red'>
+            <i class='fas fa-ban' style='color:red'></i>정지된 유저</a></li>
+        <% } %>
+        <% if(!currentUser.verified){ %>
+        <li class="nav-item"><a class="nav-link" style='color:blue'>
+            <i class="fas fa-exclamation-triangle"></i>미인증 상태</a></li>
+        <% } else { %>
 
-              <% } %>
+        <% } %>
         <% } else { %>
         <li class="nav-item"><a href="/users/new" class="nav-link">회원가입</a></li>
         <li class="nav-item"><a href="/login" class="nav-link">로그인</a></li>

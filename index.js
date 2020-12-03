@@ -27,29 +27,29 @@ mongoose.set('useCreateIndex', true);
 mongoose.set('useUnifiedTopology', true);
 mongoose.connect(dbUrl);
 var db = mongoose.connection;
-db.once('open', function(){
+db.once('open', function () {
   console.log('DB connected');
 });
-db.on('error', function(err){
+db.on('error', function (err) {
   console.log('DB ERROR : ', err);
 });
 
 // Other settings
 app.set('view engine', 'ejs');
 
-app.use(express.static(__dirname+'/public'));
+app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(flash());
-app.use(session({secret:'MySecret', resave:true, saveUninitialized:true}));
+app.use(session({ secret: 'MySecret', resave: true, saveUninitialized: true }));
 
 // Passport
 app.use(passport.initialize());
 app.use(passport.session());
 
 // Custom Middlewares
-app.use(function(req,res,next){
+app.use(function (req, res, next) {
   res.locals.isAuthenticated = req.isAuthenticated();
   res.locals.currentUser = req.user;
   res.locals.passKey = req.passKey;
@@ -63,14 +63,15 @@ app.use('/dm', require('./routes/chats'));
 app.use('/boards', util.getPostQueryString, require('./routes/posts'));
 app.use('/comments', util.getPostQueryString, require('./routes/comments'));
 app.use('/files', require('./routes/files'));
-app.get('*', function(req, res){
+app.use('/bills', util.getPostQueryString, require('./routes/bills'));
+app.get('*', function (req, res) {
   res.status(404).send('<b>404: Not Found</b>');
 });
 
 // Port setting
 var port = process.env.PORT || 3000;
-server.listen(port, function(){
-  console.log('server on! http://localhost:'+port);
+server.listen(port, function () {
+  console.log('server on! http://localhost:' + port);
 });
 
 
