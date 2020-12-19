@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <%- include('../partials/head') %>
+</head>
+
+<body>
+  <%- include('../partials/nav') %>
+
+  <div class="container mb-3">
+
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb p-1 pl-2 pr-2">
+        <li class="breadcrumb-item"><a href="/">홈</a></li>
+        <li class="breadcrumb-item"><a href="/bills/admin">고지서 관리</a></li>
+        <li class="breadcrumb-item active" aria-current="page">고지서 작성</li>
+      </ol>
+    </nav>
+
+    <form action="/bills/admin/new" enctype="multipart/form-data" method="post">
+      <div class="form-group">
+        <label for="title">제목</label>
+        <input type="text" id="title" name="title" value="<%= bill.title %>" class="form-control <%= (errors.title)?'is-invalid':'' %>">
+        <% if(errors.title){ %>
+        <span class="invalid-feedback"><%= errors.title.message %></span>
+        <% } %>
+      </div>
+
+
+      <div class="form-group">
+        <!-- 2 -->
+        <input type="file" name="attachment" class="form-control-file" id="attachment">
+        <label for="attachment" style="color:#6464FF; font-weight:bold">첨부 파일은 이미지 파일 (jpg, jpeg, gif, png) 만 업로드가 가능합니다.</label>
+      </div>
+
+
+      <div class="form-group">
+        <label for="body">내용</label>
+        <textarea id="body" name="body" rows="5" class="form-control <%= (errors.body)?'is-invalid':'' %>"><%= bill.body %></textarea>
+        <% if(errors.body){ %>
+        <span class="invalid-feedback"><%= errors.body.message %></span>
+        <% } %>
+      </div>
+
+      <% if(errors.unhandled){ %>
+      <div class="invalid-feedback b-block">
+        <%= errors.unhandled %>
+      </div>
+      <% } %>
+
+      <div>
+        <a class="btn btn-primary" href="/bills/admin">뒤로가기</a>
+        <button type="submit" class="btn btn-primary">작성</button>
+      </div>
+
+    </form>
+
+
+  </div>
+  <%- include('../partials/footer') %>
+</body>
+
+</html>

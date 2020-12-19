@@ -50,6 +50,10 @@ billSchema.statics.findOneByReceiver = function (billId, callback) {
   return this.findOne({ "_id": billId }, callback).populate({ path: 'attachment', match: { isDeleted: false } });
 };
 
+billSchema.statics.findAll = function (callback){
+  return this.find({}, callback);
+};
+
 var Bill = mongoose.model('bill', billSchema);
 // model & export
 module.exports = Bill;

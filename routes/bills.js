@@ -36,12 +36,57 @@ router.get('/user', util.isLoggedin, util.isSuspended, async function (req, res)
   }
 });
 
+router.get('/admin', util.isLoggedin, util.isSuspended, async function (req, res) {
+  if (!req.user.isAdmin) {
+    return util.noPermission(req, res);
+  } else if (!req.user.verified) {
+    return util.isVerified(req, res);
+  } else {
+    var page = Math.max(1, parseInt(req.query.page));
+    var limit = Math.max(1, parseInt(req.query.limit));
+    page = !isNaN(page) ? page : 1;
+    limit = !isNaN(limit) ? limit : 10;
+
+    var skip = (page - 1) * limit;
+    var count = await Bill.countDocuments({}).skip(skip);
+    var maxPage = Math.ceil(count / limit);
+
+    var bills = await Bill.findAll(function(err,bills){
+      if (err) return console.log(err);
+      res.render('bills/admin', {
+        bills: bills,
+        currentPage: page,
+        maxPage: maxPage,
+        limit: limit
+      });
+
+    });
+
+
+  }
+});
+
+// New
+router.get('/admin/new', util.isLoggedin, util.isAdmin, util.isVerified, util.isSuspended, function (req, res) {
+
+  res.render('bills/admin/new', {
+    
+  });
+});
+
+// Create
+router.post('/admin/new', util.isLoggedin, util.isAdmin, util.isVerified, util.isSuspended, function (req, res) {
+
+  res.redirect('/bills/admin');
+});
+
 router.get('/:billId', util.isLoggedin, util.isSuspended, async function (req, res) {
   if (!req.user.verified) {
     return util.isVerified(req, res);
   } else {
     Bill.findOneByReceiver(req.params.billId, function (err, bill) {
       if (err) return console.log(err);
+      // TODO check if this bill belongs to current user
       res.render('bills/show', {
         bill: bill,
       });
@@ -49,18 +94,6 @@ router.get('/:billId', util.isLoggedin, util.isSuspended, async function (req, r
   }
 });
 
-router.get('/admin', util.isLoggedin, util.isSuspended, function (req, res) {
-  if (!req.user.isAdmin) {
-    return util.noPermission(req, res);
-  } else if (!req.user.verified) {
-    return util.isVerified(req, res);
-  } else {
-    res.render('bills/admin', {
-      post: 'test',
-      boardName: 'boardName',
-      errors: 'errors'
-    });
-  }
-});
+
 
 module.exports = router;

@@ -148,6 +148,11 @@ div.mini-title {
   text-align: center;
 }
 
+.board-table .receiver {
+  width: 100px;
+  text-align: center;
+}
+
 .board-table .date {
   width: 80px;
   text-align: center;
